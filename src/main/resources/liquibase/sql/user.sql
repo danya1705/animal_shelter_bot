@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS notification_task
     user_id BIGINT                     NOT NULL ,
     full_name TEXT                     NOT NULL ,
     contacts TEXT                      NOT NULL ,
-    custody_date_ TIMESTAMP            NOT NULL,
+    custody_date TIMESTAMP             NOT NULL ,
     volunteer TEXT                     NOT NULL
 );
