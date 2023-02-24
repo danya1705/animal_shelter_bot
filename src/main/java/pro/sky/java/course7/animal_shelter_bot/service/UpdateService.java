@@ -2,9 +2,12 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
+import pro.sky.java.course7.animal_shelter_bot.model.keyboards.ButtonsInlineKeyboard;
+import pro.sky.java.course7.animal_shelter_bot.model.keyboards.ButtonsKeyboard;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +22,20 @@ public class UpdateService {
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
     public Map<Long, BotStatus> statusMap = new HashMap<>();
+
+    private final ButtonsInlineKeyboard keyboardWithButtons = new ButtonsInlineKeyboard("Shelter's Info",
+            "Take a pet",
+            "Send report",
+            "Call manager",
+            "smtng",
+            "smtng",
+            "smtng",
+            "smtng");
+
+    private final ButtonsKeyboard buttonsKeyboard = new ButtonsKeyboard("Shelter's Info",
+            "Take a pet",
+            "Send report",
+            "Call manager");
 
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
@@ -38,9 +55,8 @@ public class UpdateService {
                 }
             }
         }
-
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
-        message.parseMode(ParseMode.HTML);
+        message.parseMode(ParseMode.HTML).replyMarkup(keyboardWithButtons.setMarkup());
 //        if (menuMarkup(botStatus) != null) {
 //            message = message.replyMarkup(menuMarkup(botStatus));
 //        }
