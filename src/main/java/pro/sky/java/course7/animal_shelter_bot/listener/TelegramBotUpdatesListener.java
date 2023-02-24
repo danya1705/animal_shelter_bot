@@ -34,7 +34,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            if (update != null) {
+            if (update != null && update.message() != null) {
                 SendResponse response = telegramBot.execute(updateService.updateHandler(update));
             }
         });
