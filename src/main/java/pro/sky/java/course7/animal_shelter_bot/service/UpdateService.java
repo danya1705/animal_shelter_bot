@@ -31,6 +31,14 @@ public class UpdateService {
         statusMap.putIfAbsent(chatId, BotStatus.PRINT_GREETINGS_MESSAGE);
         BotStatus botStatus = statusMap.get(chatId);
 
+        switch (botStatus) {
+            case PRINT_GREETINGS_MESSAGE -> {
+                if ("/start".equals(update.message().text())) {
+                    botStatus = BotStatus.SHOW_STAGE_NULL_MENU;
+                }
+            }
+        }
+
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
         message.parseMode(ParseMode.HTML);
 //        if (menuMarkup(botStatus) != null) {
