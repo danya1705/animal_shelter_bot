@@ -17,4 +17,36 @@ public class Animal {
     private String nickname;
 
     private Boolean availabilityAnimal;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAnimalType() {
+        return animalType;
+    }
+
+    public void setAnimalType(String animalType) {
+        this.animalType = animalType;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public Boolean getAvailabilityAnimal() {
+        return availabilityAnimal;
+    }
+
+    public void setAvailabilityAnimal(Boolean availabilityAnimal) {
+        this.availabilityAnimal = availabilityAnimal;
+    }
 }
