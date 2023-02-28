@@ -29,3 +29,6 @@ CREATE TABLE report
     wellbeing TEXT                     NOT NULL ,
     behaviour TEXT                     NOT NULL
 );
+
+--changeset vikhtiiarov:3
+ALTER TABLE report ALTER COLUMN date_adoption TYPE TIMESTAMP;
