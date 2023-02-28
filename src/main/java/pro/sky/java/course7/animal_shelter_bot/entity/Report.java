@@ -5,16 +5,23 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
+
 @Entity
-public class Animal {
+public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String animalType;
+    private LocalDateTime dateAdoption;
 
-    private String nickname;
+    private byte[] foto;
 
-    private Boolean availabilityAnimal;
+    private String diet;
+
+    private String wellbeing;
+
+    private String behaviour;
+
 }
