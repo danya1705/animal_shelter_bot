@@ -21,7 +21,7 @@ public class UpdateService {
     /**
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
-    public Map<Long, BotStatus> statusMap = new HashMap<>();
+    private Map<Long, BotStatus> statusMap = new HashMap<>();
 
     private final ButtonsInlineKeyboard keyboardWithButtons = new ButtonsInlineKeyboard("Shelter's Info",
             "Take a pet",
@@ -57,9 +57,6 @@ public class UpdateService {
         }
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
         message.parseMode(ParseMode.HTML).replyMarkup(keyboardWithButtons.setMarkup());
-//        if (menuMarkup(botStatus) != null) {
-//            message = message.replyMarkup(menuMarkup(botStatus));
-//        }
 
         return message;
     }
