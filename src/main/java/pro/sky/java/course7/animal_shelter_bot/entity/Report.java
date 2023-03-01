@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 public class Report {
@@ -13,7 +13,7 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime dateAdoption;
+    private LocalDate reportDate;
 
     private byte[] foto;
 
@@ -23,6 +23,8 @@ public class Report {
 
     private String behaviour;
 
+    private Long parentId;
+
     public Long getId() {
         return id;
     }
@@ -31,12 +33,12 @@ public class Report {
         this.id = id;
     }
 
-    public LocalDateTime getDateAdoption() {
-        return dateAdoption;
+    public LocalDate getReportDate() {
+        return reportDate;
     }
 
-    public void setDateAdoption(LocalDateTime dateAdoption) {
-        this.dateAdoption = dateAdoption;
+    public void setReportDate(LocalDate reportDate) {
+        this.reportDate = reportDate;
     }
 
     public byte[] getFoto() {
@@ -70,4 +72,13 @@ public class Report {
     public void setBehaviour(String behaviour) {
         this.behaviour = behaviour;
     }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
 }

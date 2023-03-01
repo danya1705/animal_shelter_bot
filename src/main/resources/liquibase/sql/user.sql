@@ -38,3 +38,10 @@ CREATE TABLE report
     wellbeing TEXT                     NOT NULL ,
     behaviour TEXT                     NOT NULL
 );
+
+--changeset daniilK:1
+ALTER TABLE report ADD parent_id BIGINT NOT NULL REFERENCES user_custodian(id);
+ALTER TABLE report RENAME COLUMN date_adoption TO report_date;
+
+--changeset daniilK:2
+ALTER TABLE report ALTER COLUMN report_date TYPE DATE;
