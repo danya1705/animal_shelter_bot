@@ -120,4 +120,16 @@ public class AnimalShelterController {
     ) {
         reportService.sendMessage(id, text);
     }
+
+    @Operation(summary = "Closing the trial period", tags = "Trial period")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trial period is closed",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TrialPeriod.class))})
+    })
+    @DeleteMapping("closurePeriod")
+    public ResponseEntity<Void> closureTrialPeriod(@PathVariable Long id) {
+        trialPeriodService.deletePeriod(id);
+        return ResponseEntity.ok().build();
+    }
 }

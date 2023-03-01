@@ -29,4 +29,8 @@ public class TrialPeriodService {
         }
         return null;
     }
+
+    public void deletePeriod(long id) {
+        trialPeriodRepository.deleteById(id);
+    }
 }
