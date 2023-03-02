@@ -1,4 +1,4 @@
-package pro.sky.java.course7.animal_shelter_bot.entity;
+package pro.sky.java.course7.animal_shelter_bot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +23,7 @@ public class Report {
 
     private String behaviour;
 
-    private Long parentId;
+    private Long userId;
 
     public Long getId() {
         return id;
@@ -73,12 +73,12 @@ public class Report {
         this.behaviour = behaviour;
     }
 
-    public Long getParentId() {
-        return parentId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
 }

@@ -1,4 +1,4 @@
-package pro.sky.java.course7.animal_shelter_bot.entity;
+package pro.sky.java.course7.animal_shelter_bot.model;
 
 
 import javax.persistence.Entity;
@@ -18,17 +18,20 @@ public class UserCustodian {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private long userId;
+    private long userChatId;
 
     private String fullName;
 
     private String contacts;
 
-    private LocalDateTime custodyDate;
 
-    private String volunteer;
+    public long getUserChatId() {
+        return userChatId;
+    }
 
-
+    public void setUserChatId(long userChatId) {
+        this.userChatId = userChatId;
+    }
 
     public Long getId() {
         return id;
@@ -38,13 +41,6 @@ public class UserCustodian {
         this.id = id;
     }
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
 
     public String getFullName() {
         return fullName;
@@ -62,19 +58,6 @@ public class UserCustodian {
         this.contacts = contacts;
     }
 
-    public LocalDateTime getCustodyDate() {
-        return custodyDate;
-    }
 
-    public void setCustodyDate(LocalDateTime custodyDate) {
-        this.custodyDate = custodyDate;
-    }
 
-    public String getVolunteer() {
-        return volunteer;
-    }
-
-    public void setVolunteer(String volunteer) {
-        this.volunteer = volunteer;
-    }
 }
