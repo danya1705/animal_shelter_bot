@@ -31,6 +31,9 @@ public class TrialPeriodService {
     }
 
     public void deletePeriod(long id) {
-        trialPeriodRepository.deleteById(id);
+        TrialPeriod findTrialPeriod = trialPeriodRepository.findById(id).orElse(null);
+        if (findTrialPeriod != null) {
+            trialPeriodRepository.deleteById(id);
+        }
     }
 }

@@ -127,8 +127,8 @@ public class AnimalShelterController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
-    @DeleteMapping("closurePeriod")
-    public ResponseEntity<Void> closureTrialPeriod(@PathVariable Long id) {
+    @DeleteMapping("{id}")
+    public ResponseEntity<TrialPeriod> closureTrialPeriod(@PathVariable Long id) {
         trialPeriodService.deletePeriod(id);
         return ResponseEntity.ok().build();
     }
