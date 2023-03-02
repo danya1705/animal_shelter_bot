@@ -1,7 +1,7 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import org.springframework.stereotype.Service;
-import pro.sky.java.course7.animal_shelter_bot.entity.TrialPeriod;
+import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class TrialPeriodService {
         return null;
     }
 
-    public void deletePeriod(long id) {
+    public void deletePeriod(Long id) {
         trialPeriodRepository.deleteById(id);
     }
 }

@@ -1,4 +1,4 @@
-package pro.sky.java.course7.animal_shelter_bot.entity;
+package pro.sky.java.course7.animal_shelter_bot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

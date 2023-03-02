@@ -1,7 +1,7 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import org.springframework.stereotype.Service;
-import pro.sky.java.course7.animal_shelter_bot.entity.Report;
+import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
@@ -29,7 +29,7 @@ public class ReportService {
         List<Report> reportList = new ArrayList<>();
         Collection<Long> idByVolunteer = trialPeriodRepository.findParentIdByVolunteer(volunteer);
         for (Long id : idByVolunteer) {
-            reportList.addAll(reportRepository.findReportsByParentId(id));
+            reportList.addAll(reportRepository.findReportsByUserId(id));
         }
         return reportList.stream()
                 .filter(e -> e.getReportDate().isAfter(dateFrom) && e.getReportDate().isBefore(dateTo))

@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pro.sky.java.course7.animal_shelter_bot.entity.Report;
-import pro.sky.java.course7.animal_shelter_bot.entity.TrialPeriod;
+import pro.sky.java.course7.animal_shelter_bot.model.Report;
+import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
 import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
 

@@ -45,3 +45,18 @@ ALTER TABLE report RENAME COLUMN date_adoption TO report_date;
 
 --changeset daniilK:2
 ALTER TABLE report ALTER COLUMN report_date TYPE DATE;
+
+--changeset vikhtiiarov:3
+ALTER TABLE  user_custodian DROP COLUMN volunteer ;
+ALTER TABLE  user_custodian DROP COLUMN custody_date ;
+ALTER TABLE  user_custodian RENAME COLUMN user_id TO user_chat_id;
+
+ALTER TABLE  trial_period DROP COLUMN parent_id;
+ALTER TABLE trial_period ADD COLUMN animal_id BIGINT  NOT NULL REFERENCES animal(id) ;
+ALTER TABLE trial_period ALTER COLUMN start_date TYPE DATE;
+ALTER TABLE trial_period ALTER COLUMN end_date TYPE DATE;
+ALTER TABLE trial_period ADD user_id BIGINT  NOT NULL REFERENCES user_custodian(id) ;
+ALTER TABLE report RENAME COLUMN parent_id TO user_id ;
+
+
+
