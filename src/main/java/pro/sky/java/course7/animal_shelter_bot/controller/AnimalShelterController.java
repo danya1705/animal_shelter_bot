@@ -16,7 +16,6 @@ import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
 import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -97,8 +96,8 @@ public class AnimalShelterController {
     @GetMapping("/report/{volunteer}")
     public Collection<Report> getReports(
             @PathVariable(name = "volunteer") @Parameter(description = "Volunteer") String volunteer,
-            @RequestParam(name = "dateFrom") @Parameter(description = "Start of period") LocalDate dateFrom,
-            @RequestParam(name = "dateTo") @Parameter(description = "End of period") LocalDate dateTo
+            @RequestParam(name = "dateFrom") @Parameter(description = "Start of period") String dateFrom,
+            @RequestParam(name = "dateTo") @Parameter(description = "End of period") String dateTo
     ) {
         return reportService.getReports(volunteer, dateFrom, dateTo);
     }

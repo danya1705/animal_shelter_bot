@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 @Entity
 public class Report {
@@ -81,4 +82,16 @@ public class Report {
         this.userId = userId;
     }
 
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+                ", reportDate=" + reportDate +
+                ", foto=" + Arrays.toString(foto) +
+                ", diet='" + diet + '\'' +
+                ", wellbeing='" + wellbeing + '\'' +
+                ", behaviour='" + behaviour + '\'' +
+                ", parentId=" + parentId +
+                '}';
+    }
 }

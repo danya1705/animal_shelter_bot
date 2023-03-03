@@ -1,13 +1,12 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
-import pro.sky.java.course7.animal_shelter_bot.model.keyboards.ButtonsInlineKeyboard;
-import pro.sky.java.course7.animal_shelter_bot.model.keyboards.ButtonsKeyboard;
+import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,46 +17,131 @@ import java.util.Map;
 @Service
 public class UpdateService {
 
+    private final KeyboardService keyboardService;
+
     /**
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
-    private Map<Long, BotStatus> statusMap = new HashMap<>();
+    private final Map<Long, BotStatus> statusMap = new HashMap<>();
 
-    private final ButtonsInlineKeyboard keyboardWithButtons = new ButtonsInlineKeyboard("Shelter's Info",
-            "Take a pet",
-            "Send report",
-            "Call manager",
-            "smtng",
-            "smtng",
-            "smtng",
-            "smtng");
+    public UpdateService(KeyboardService keyboardService) {
+        this.keyboardService = keyboardService;
+    }
 
-    private final ButtonsKeyboard buttonsKeyboard = new ButtonsKeyboard("Shelter's Info",
-            "Take a pet",
-            "Send report",
-            "Call manager");
 
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
+     *
      * @param update не должен быть null
      * @return ответное сообщение для отправки в Телеграм-бот
      */
-    public SendMessage updateHandler (Update update) {
+    public SendMessage updateHandler(Update update) {
 
-        Long chatId = update.message().chat().id();
-        statusMap.putIfAbsent(chatId, BotStatus.PRINT_GREETINGS_MESSAGE);
+        Long chatId;
+        if (update.message() != null) {
+            chatId = update.message().chat().id();
+        } else if (update.callbackQuery() != null) {
+            chatId = update.callbackQuery().from().id();
+        } else {
+            return null;
+        }
+        statusMap.putIfAbsent(chatId, BotStatus.GREETINGS_MESSAGE);
         BotStatus botStatus = statusMap.get(chatId);
+        System.out.println(chatId + " " + botStatus);
 
         switch (botStatus) {
-            case PRINT_GREETINGS_MESSAGE -> {
-                if ("/start".equals(update.message().text())) {
-                    botStatus = BotStatus.SHOW_STAGE_NULL_MENU;
+            case GREETINGS_MESSAGE -> {
+                return handlePrintGreetingsMessage(chatId);
+            }
+            case START_BUTTON -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStartButtonCallback(chatId, callbackData);
+                }
+            }
+            case STAGE_NULL_MENU -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageNullMenuCallback(chatId, callbackData);
+                }
+
+            }
+            case STAGE_ONE_MENU -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageOneMenuCallback(chatId, callbackData);
+                }
+            }
+            case STAGE_TWO_MENU -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageTwoMenuCallback(chatId, callbackData);
                 }
             }
         }
-        SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
-        message.parseMode(ParseMode.HTML).replyMarkup(keyboardWithButtons.setMarkup());
 
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    private SendMessage handleGetStageTwoMenuCallback(Long chatId, String callbackData) {
+
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
+
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    private SendMessage handleGetStageNullMenuCallback(Long chatId, String callbackData) {
+
+        if (callbackData.equals(Buttons.M0_FIRST_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
+        }
+
+        if (callbackData.equals(Buttons.M0_SECOND_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
+            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    private SendMessage handleGetStartButtonCallback(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.START_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+
+    private SendMessage handlePrintGreetingsMessage(Long chatId) {
+        SendMessage message = createMessage(chatId, BotStatus.GREETINGS_MESSAGE, keyboardService.startButtonKeyboard());
+        statusMap.put(chatId, BotStatus.START_BUTTON);
         return message;
     }
+
+    public SendMessage createMessage(Long chatId, BotStatus botStatus) {
+        SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
+        return message.parseMode(ParseMode.HTML);
+    }
+
+    public SendMessage createMessage(Long chatId, BotStatus botStatus, InlineKeyboardMarkup markup) {
+        SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
+        return message.parseMode(ParseMode.HTML).replyMarkup(markup);
+    }
+
+
 }
