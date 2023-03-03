@@ -91,7 +91,7 @@ public class Report {
                 ", diet='" + diet + '\'' +
                 ", wellbeing='" + wellbeing + '\'' +
                 ", behaviour='" + behaviour + '\'' +
-                ", parentId=" + parentId +
+                ", userId=" + userId +
                 '}';
     }
 }

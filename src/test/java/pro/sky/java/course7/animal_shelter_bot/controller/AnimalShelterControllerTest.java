@@ -9,8 +9,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pro.sky.java.course7.animal_shelter_bot.entity.Report;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
+import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
@@ -64,31 +64,31 @@ class AnimalShelterControllerTest {
         Report report11 = new Report();
         report11.setId(11L);
         report11.setReportDate(LocalDate.of(2023, Month.JANUARY, 11));
-        report11.setParentId(1L);
+        report11.setUserId(1L);
 
         Report report12 = new Report();
         report12.setId(12L);
         report12.setReportDate(LocalDate.of(2023, Month.JANUARY, 12));
-        report12.setParentId(1L);
+        report12.setUserId(1L);
 
         Report report20 = new Report();
         report20.setId(20L);
         report20.setReportDate(LocalDate.of(2023, Month.FEBRUARY, 20));
-        report20.setParentId(2L);
+        report20.setUserId(2L);
 
         Report report30 = new Report();
         report30.setId(30L);
         report30.setReportDate(LocalDate.of(2023, Month.MARCH, 30));
-        report30.setParentId(3L);
+        report30.setUserId(3L);
 
         /*
          * Настраиваем выдачу отчетов из моков trialPeriodRepository и reportRepository
          * в зависимости от id попечителя
          */
-        when(trialPeriodRepository.findParentIdByVolunteer(any(String.class))).thenReturn(idList);
-        when(reportRepository.findReportsByParentId(eq(1L))).thenReturn(List.of(report11, report12));
-        when(reportRepository.findReportsByParentId(eq(2L))).thenReturn(List.of(report20));
-        when(reportRepository.findReportsByParentId(eq(3L))).thenReturn(List.of(report30));
+        when(trialPeriodRepository.findUserIdByVolunteer(any(String.class))).thenReturn(idList);
+        when(reportRepository.findReportsByUserId(eq(1L))).thenReturn(List.of(report11, report12));
+        when(reportRepository.findReportsByUserId(eq(2L))).thenReturn(List.of(report20));
+        when(reportRepository.findReportsByUserId(eq(3L))).thenReturn(List.of(report30));
 
         /*
          * Тест должен выдать все 4 отчета и проверить их id
@@ -134,7 +134,7 @@ class AnimalShelterControllerTest {
          * Обновляем выдачу из trialPeriodRepository
          */
         Collection<Long> idListNull = List.of(4L, 5L);
-        when(trialPeriodRepository.findParentIdByVolunteer(any(String.class))).thenReturn(idListNull);
+        when(trialPeriodRepository.findUserIdByVolunteer(any(String.class))).thenReturn(idListNull);
 
         /*
          * Тест должен не найти ни одного отчета с нужными id попечителей и выдать пустой список

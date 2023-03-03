@@ -7,5 +7,5 @@ import java.util.Collection;
 
 public interface TrialPeriodRepository extends JpaRepository<TrialPeriod, Long> {
 
-    Collection<Long> findParentIdByVolunteer (String volunteer);
+    Collection<Long> findUserIdByVolunteer (String volunteer);
 }

@@ -30,7 +30,7 @@ public class ReportService {
         LocalDate dateFrom = LocalDate.parse(stringDateFrom);
         LocalDate dateTo = LocalDate.parse(stringDateTo);
         List<Report> reportList = new ArrayList<>();
-        Collection<Long> idByVolunteer = trialPeriodRepository.findParentIdByVolunteer(volunteer);
+        Collection<Long> idByVolunteer = trialPeriodRepository.findUserIdByVolunteer(volunteer);
         for (Long id : idByVolunteer) {
             reportList.addAll(reportRepository.findReportsByUserId(id));
         }
