@@ -25,14 +25,18 @@ public class ReportService {
         this.telegramBotUpdatesListener = telegramBotUpdatesListener;
     }
 
-    public List<Report> getReports(String volunteer, LocalDate dateFrom, LocalDate dateTo) {
+    public List<Report> getReports(String volunteer, String stringDateFrom, String stringDateTo) {
+
+        LocalDate dateFrom = LocalDate.parse(stringDateFrom);
+        LocalDate dateTo = LocalDate.parse(stringDateTo);
         List<Report> reportList = new ArrayList<>();
         Collection<Long> idByVolunteer = trialPeriodRepository.findParentIdByVolunteer(volunteer);
         for (Long id : idByVolunteer) {
             reportList.addAll(reportRepository.findReportsByParentId(id));
         }
         return reportList.stream()
-                .filter(e -> e.getReportDate().isAfter(dateFrom) && e.getReportDate().isBefore(dateTo))
+                .filter(e -> e.getReportDate().isAfter(dateFrom.minusDays(1))
+                        && e.getReportDate().isBefore(dateTo.plusDays(1)))
                 .collect(Collectors.toList());
     }
 
