@@ -76,7 +76,7 @@ public class AnimalShelterController {
         if (findTrialPeriod == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok(findTrialPeriod);
     }
 
     @Operation(
