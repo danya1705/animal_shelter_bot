@@ -74,7 +74,10 @@ public class TrialPeriodController {
     })
     @DeleteMapping("{id}")
     public ResponseEntity<TrialPeriod> closureTrialPeriod(@PathVariable Long id) {
-        trialPeriodService.deletePeriod(id);
-        return ResponseEntity.ok().build();
+        TrialPeriod findTrialPeriod = trialPeriodService.deletePeriod(id);
+        if (findTrialPeriod == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(findTrialPeriod);
     }
 }
