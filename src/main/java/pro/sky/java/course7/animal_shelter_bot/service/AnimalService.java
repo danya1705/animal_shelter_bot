@@ -28,8 +28,12 @@ public class AnimalService {
         return animalRepository.save(animal);
     }
 
-    public void deleteAnimalId(Long id) {
-        animalRepository.deleteById(id);
+    public Animal deleteAnimalId(Long id) {
+        Animal animalDelete = animalRepository.findById(id).orElse(null);
+        if (animalDelete != null) {
+            animalRepository.deleteById(id);
+        }
+        return null;
     }
 
     public Animal updateAnimal(Animal animal) {
