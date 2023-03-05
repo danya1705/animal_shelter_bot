@@ -37,7 +37,7 @@ public class ReportController {
     )
     @GetMapping("/report/{volunteer}")
     public Collection<Report> getReports(
-            @PathVariable(name = "volunteer") @Parameter(description = "Volunteer") String volunteer,
+            @PathVariable(name = "volunteer") @Parameter(description = "Volunteer") Long volunteer,
             @RequestParam(name = "dateFrom") @Parameter(description = "Start of period") String dateFrom,
             @RequestParam(name = "dateTo") @Parameter(description = "End of period") String dateTo
     ) {

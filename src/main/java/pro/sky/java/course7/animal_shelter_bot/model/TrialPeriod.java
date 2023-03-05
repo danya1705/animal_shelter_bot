@@ -13,7 +13,7 @@ public class TrialPeriod {
     private Long id;
     private LocalDate StartDate;
     private LocalDate EndDate;
-    private String volunteer;
+    private Long volunteerId;
     private Long userId;
     private Long animalId;
 
@@ -26,13 +26,12 @@ public class TrialPeriod {
         this.id = id;
     }
 
-
-    public String getVolunteer() {
-        return volunteer;
+    public Long getVolunteerId() {
+        return volunteerId;
     }
 
-    public void setVolunteer(String volunteer) {
-        this.volunteer = volunteer;
+    public void setVolunteerId(Long volunteerId) {
+        this.volunteerId = volunteerId;
     }
 
     public LocalDate getStartDate() {

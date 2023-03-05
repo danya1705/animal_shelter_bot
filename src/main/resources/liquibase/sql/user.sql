@@ -67,5 +67,11 @@ CREATE TABLE volunteer
     available      BOOLEAN           NOT NULL
 );
 
+--changeset vikhtiiarov:5
+ALTER TABLE trial_period DROP COLUMN volunteer ;
+ALTER TABLE trial_period ADD volunteer_id BIGINT NOT NULL REFERENCES volunteer(id);
+
+
+
 
 
