@@ -25,10 +25,10 @@ public class TrialPeriodService {
 
     public TrialPeriod editTrialPeriod(TrialPeriod period) {
         TrialPeriod findTrialPeriod = trialPeriodRepository.findById(period.getId()).orElse(null);
-        if (findTrialPeriod != null) {
-            return trialPeriodRepository.save(period);
+        if (findTrialPeriod == null) {
+            throw new NullPointerException();
         }
-        return null;
+        return trialPeriodRepository.save(period);
     }
 
     public TrialPeriod deletePeriod(long id) {

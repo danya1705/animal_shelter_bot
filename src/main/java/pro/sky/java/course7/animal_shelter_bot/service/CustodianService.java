@@ -32,6 +32,4 @@ public class CustodianService {
         return userCustodianRepository.findAll();
     }
 
-
-
 }
