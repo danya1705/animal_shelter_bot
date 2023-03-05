@@ -11,8 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
+import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
+import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
+import pro.sky.java.course7.animal_shelter_bot.service.AnimalService;
+import pro.sky.java.course7.animal_shelter_bot.service.CustodianService;
 import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
 import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
 
@@ -32,22 +36,24 @@ class ReportControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private ReportRepository reportRepository;
-
     @MockBean
     private TrialPeriodRepository trialPeriodRepository;
-
+    @MockBean
+    private UserCustodianRepository userCustodianRepository;
+    @MockBean
+    private AnimalRepository animalRepository;
     @MockBean
     private TelegramBotUpdatesListener telegramBotUpdatesListener;
-
     @SpyBean
     private ReportService reportService;
-
     @SpyBean
     private TrialPeriodService trialPeriodService;
-
+    @SpyBean
+    private AnimalService animalService;
+    @SpyBean
+    private CustodianService custodianService;
     @InjectMocks
     private ReportController reportController;
 
@@ -86,7 +92,7 @@ class ReportControllerTest {
          * Настраиваем выдачу отчетов из моков trialPeriodRepository и reportRepository
          * в зависимости от id попечителя
          */
-        when(trialPeriodRepository.findUserIdByVolunteer(any(String.class))).thenReturn(idList);
+        when(trialPeriodRepository.findUserIdByVolunteerId(any(Long.class))).thenReturn(idList);
         when(reportRepository.findReportsByUserId(eq(1L))).thenReturn(List.of(report11, report12));
         when(reportRepository.findReportsByUserId(eq(2L))).thenReturn(List.of(report20));
         when(reportRepository.findReportsByUserId(eq(3L))).thenReturn(List.of(report30));
@@ -95,7 +101,7 @@ class ReportControllerTest {
          * Тест должен выдать все 4 отчета и проверить их id
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/report/{volunteer}", "volunteer")
+                        .get("/report/{volunteer-id}", 1)
                         .param("dateFrom", "2023-01-01")
                         .param("dateTo", "2023-04-01"))
                 .andExpect(status().isOk())
@@ -110,7 +116,7 @@ class ReportControllerTest {
          * Тест должен выдать только 2 из 4 отчетов и проверить их id
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/report/{volunteer}", "volunteer")
+                        .get("/report/{volunteer-id}", 1)
                         .param("dateFrom", "2023-01-12")
                         .param("dateTo", "2023-03-01"))
                 .andExpect(status().isOk())
@@ -123,7 +129,7 @@ class ReportControllerTest {
          * Тест должен не найти ни одного отчета в указанный интервал дат и выдать пустой список
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/report/{volunteer}", "volunteer")
+                        .get("/report/{volunteer-id}", 1)
                         .param("dateFrom", "2023-05-01")
                         .param("dateTo", "2023-06-01"))
                 .andExpect(status().isOk())
@@ -135,13 +141,13 @@ class ReportControllerTest {
          * Обновляем выдачу из trialPeriodRepository
          */
         Collection<Long> idListNull = List.of(4L, 5L);
-        when(trialPeriodRepository.findUserIdByVolunteer(any(String.class))).thenReturn(idListNull);
+        when(trialPeriodRepository.findUserIdByVolunteerId(any(Long.class))).thenReturn(idListNull);
 
         /*
          Тест должен не найти ни одного отчета с нужными id попечителей и выдать пустой список
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/report/{volunteer}", "volunteer")
+                        .get("/report/{volunteer-id}", 1)
                         .param("dateFrom", "2023-01-01")
                         .param("dateTo", "2023-12-31"))
                 .andExpect(status().isOk())

@@ -35,13 +35,13 @@ public class ReportController {
                     )
             }
     )
-    @GetMapping("/report/{volunteer}")
+    @GetMapping("/report/{volunteer-id}")
     public Collection<Report> getReports(
-            @PathVariable(name = "volunteer") @Parameter(description = "Volunteer") Long volunteer,
+            @PathVariable(name = "volunteer-id") @Parameter(description = "Volunteer ID") Long volunteerId,
             @RequestParam(name = "dateFrom") @Parameter(description = "Start of period") String dateFrom,
             @RequestParam(name = "dateTo") @Parameter(description = "End of period") String dateTo
     ) {
-        return reportService.getReports(volunteer, dateFrom, dateTo);
+        return reportService.getReports(volunteerId, dateFrom, dateTo);
     }
 
     @Operation(

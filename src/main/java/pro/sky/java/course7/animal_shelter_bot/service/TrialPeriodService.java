@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -26,7 +25,7 @@ public class TrialPeriodService {
     public TrialPeriod editTrialPeriod(TrialPeriod period) {
         TrialPeriod findTrialPeriod = trialPeriodRepository.findById(period.getId()).orElse(null);
         if (findTrialPeriod == null) {
-            throw new NullPointerException();
+            return null;
         }
         return trialPeriodRepository.save(period);
     }

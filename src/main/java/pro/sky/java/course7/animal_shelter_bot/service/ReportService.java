@@ -25,12 +25,12 @@ public class ReportService {
         this.telegramBotUpdatesListener = telegramBotUpdatesListener;
     }
 
-    public List<Report> getReports(Long volunteer, String stringDateFrom, String stringDateTo) {
+    public List<Report> getReports(Long volunteerId, String stringDateFrom, String stringDateTo) {
 
         LocalDate dateFrom = LocalDate.parse(stringDateFrom);
         LocalDate dateTo = LocalDate.parse(stringDateTo);
         List<Report> reportList = new ArrayList<>();
-        Collection<Long> idByVolunteer = trialPeriodRepository.findUserIdByVolunteerId(volunteer);
+        Collection<Long> idByVolunteer = trialPeriodRepository.findUserIdByVolunteerId(volunteerId);
         for (Long id : idByVolunteer) {
             reportList.addAll(reportRepository.findReportsByUserId(id));
         }

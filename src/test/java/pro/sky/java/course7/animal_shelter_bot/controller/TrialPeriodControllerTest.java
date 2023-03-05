@@ -12,8 +12,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
+import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
+import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
+import pro.sky.java.course7.animal_shelter_bot.service.AnimalService;
+import pro.sky.java.course7.animal_shelter_bot.service.CustodianService;
 import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
 import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
 
@@ -34,11 +38,19 @@ class TrialPeriodControllerTest {
     @MockBean
     private ReportRepository reportRepository;
     @MockBean
+    private UserCustodianRepository userCustodianRepository;
+    @MockBean
+    private AnimalRepository animalRepository;
+    @MockBean
     private TelegramBotUpdatesListener telegramBotUpdatesListener;
     @SpyBean
     private TrialPeriodService trialPeriodService;
     @SpyBean
     private ReportService reportService;
+    @SpyBean
+    private AnimalService animalService;
+    @SpyBean
+    private CustodianService custodianService;
     @InjectMocks
     private TrialPeriodController trialPeriodController;
 
@@ -52,23 +64,23 @@ class TrialPeriodControllerTest {
          */
         Long id = 123L;
         Long wrongId = 321L;
-        String oldVolunteer = "Doctor Aibolit";
-        String newVolunteer = "Ace Ventura";
+        Long oldVolunteerId = 1L;
+        Long newVolunteerId = 2L;
 
         TrialPeriod oldTrialPeriod = new TrialPeriod();
         oldTrialPeriod.setId(id);
-        oldTrialPeriod.setVolunteer(oldVolunteer);
+        oldTrialPeriod.setVolunteerId(oldVolunteerId);
 
         TrialPeriod newTrialPeriod = new TrialPeriod();
         newTrialPeriod.setId(id);
-        newTrialPeriod.setVolunteer(newVolunteer);
+        newTrialPeriod.setVolunteerId(newVolunteerId);
 
         /*
          * Создаем тело корректного запроса.
          */
         JSONObject requestObject = new JSONObject();
         requestObject.put("id", id);
-        requestObject.put("volunteer", newVolunteer);
+        requestObject.put("volunteer_id", newVolunteerId);
 
         /*
          * Настраиваем выдачу ответа из мока TrialPeriodRepository
@@ -88,7 +100,7 @@ class TrialPeriodControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.volunteer").value(newVolunteer));
+                .andExpect(jsonPath("$.volunteerId").value(newVolunteerId));
 
         /*
          * Создаем тело некорректного запроса (с id, на который мок выдаст пустой Optional).
