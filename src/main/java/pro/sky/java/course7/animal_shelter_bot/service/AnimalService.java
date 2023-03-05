@@ -1,7 +1,7 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import org.springframework.stereotype.Service;
-import pro.sky.java.course7.animal_shelter_bot.controller.AnimalNotFoundException;
+import pro.sky.java.course7.animal_shelter_bot.exception.AnimalNotFoundException;
 import pro.sky.java.course7.animal_shelter_bot.model.Animal;
 import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
 
