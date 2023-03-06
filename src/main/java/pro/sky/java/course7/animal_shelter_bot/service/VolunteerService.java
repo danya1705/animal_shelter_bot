@@ -3,35 +3,36 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.exception.VolunteerNotFoundException;
 import pro.sky.java.course7.animal_shelter_bot.model.Volunteer;
-import pro.sky.java.course7.animal_shelter_bot.repository.VolunteerRepository;
+import pro.sky.java.course7.animal_shelter_bot.repository.VolunteerRepositiory;
+
 
 import java.util.List;
 
 @Service
 public class VolunteerService {
 
-    private final VolunteerRepository volunteerRepository;
+    private final VolunteerRepositiory volunteerRepositiory;
 
-    public VolunteerService(VolunteerRepository volunteerRepository) {
-        this.volunteerRepository = volunteerRepository;
+    public VolunteerService(VolunteerRepositiory volunteerRepositiory) {
+        this.volunteerRepositiory = volunteerRepositiory;
     }
 
     public List<Volunteer> getVolunteerAll() {
-        return volunteerRepository.findAll();
+        return volunteerRepositiory.findAll();
     }
 
     public Volunteer getVolunteerById(long id) {
-       return volunteerRepository.findById(id).orElse(null);
+       return volunteerRepositiory.findById(id).orElse(null);
     }
 
     public Volunteer createVolunteer(Volunteer volunteer) {
-        return volunteerRepository.save(volunteer);
+        return volunteerRepositiory.save(volunteer);
     }
 
     public Volunteer deleteVolunteerId(Long id) {
-        Volunteer volunteerDelete = volunteerRepository.findById(id).orElse(null);
+        Volunteer volunteerDelete = volunteerRepositiory.findById(id).orElse(null);
         if (volunteerDelete != null) {
-            volunteerRepository.deleteById(id);
+            volunteerRepositiory.deleteById(id);
         }
         return null;
     }
@@ -41,6 +42,6 @@ public class VolunteerService {
         if (findVolunteer == null) {
             throw new VolunteerNotFoundException("Volunteer not found.");
         }
-        return volunteerRepository.save(volunteer);
+        return volunteerRepositiory.save(volunteer);
     }
 }

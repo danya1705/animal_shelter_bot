@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.java.course7.animal_shelter_bot.model.Volunteer;
-import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.service.VolunteerService;
 
 import java.util.List;
@@ -76,4 +75,4 @@ public class VolunteerController {
     }
 }
 
-}
+
