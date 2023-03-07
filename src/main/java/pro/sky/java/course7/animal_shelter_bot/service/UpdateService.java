@@ -57,7 +57,6 @@ public class UpdateService {
             }
         } else if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().from().id();
-            System.out.println(chatId);
         } else {
             return null;
         }
@@ -66,7 +65,6 @@ public class UpdateService {
             System.out.println(chatId + " oops, there's no such user");
             return handleUnregisteredUserMessage(chatId);
         } else {
-            System.out.println("continue");
             statusMap.putIfAbsent(chatId, BotStatus.GREETINGS_MESSAGE);
         }
 
