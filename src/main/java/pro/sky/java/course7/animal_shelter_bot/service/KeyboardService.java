@@ -2,12 +2,23 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.KeyboardButton;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
+import pro.sky.java.course7.animal_shelter_bot.model.ReplyButton;
 
 @Service
 public class KeyboardService {
 
+    public ReplyKeyboardMarkup sendContactKeyboard() {
+        KeyboardButton keyboardButton = new KeyboardButton(ReplyButton.SEND_CONTACT_BUTTON.getText());
+        keyboardButton.requestContact(true);
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardButton);
+        return replyKeyboardMarkup
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true);
+    }
     public InlineKeyboardMarkup startButtonKeyboard() {
 
         InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];

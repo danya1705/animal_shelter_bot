@@ -1,7 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.model;
 
 public enum Buttons {
-
     START_BUTTON("Старт", "S1Callback"),
     BACK_BUTTON ("Назад", "B1Callback"),
     M0_FIRST_BUTTON ("Информация о приюте", "M0B1Callback"),
@@ -28,7 +27,6 @@ public enum Buttons {
 
     private final String text;
     private final String callback;
-
     Buttons(String text, String callback) {
         this.text = text;
         this.callback = callback;

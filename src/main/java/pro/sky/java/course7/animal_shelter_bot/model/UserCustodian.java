@@ -24,6 +24,15 @@ public class UserCustodian {
 
     private String contacts;
 
+    public UserCustodian() {
+
+    }
+
+    public UserCustodian(long userChatId, String fullName, String contacts) {
+        this.userChatId = userChatId;
+        this.fullName = fullName;
+        this.contacts = contacts;
+    }
 
     public long getUserChatId() {
         return userChatId;

@@ -44,20 +44,24 @@ public class TrialPeriodController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
+
     @PostMapping("/new")
     public ResponseEntity<TrialPeriod> createTrialPeriod(@Parameter(description = "Period to be created")
                                                          @RequestBody TrialPeriod period) {
         return ok(trialPeriodService.createPeriod(period));
     }
 
-    @Operation(summary = "Change an existed Trial period", tags = "Trial period")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trial period has been changed",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TrialPeriod.class))})
-    })
+    @Operation(summary = "Change an existed Trial period", tags = "Trial period",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Trial period has been changed",
+                            content = {@Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = TrialPeriod.class))}),
+                    @ApiResponse(responseCode = "404", description = "Trial period not found",
+                            content = {@Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = TrialPeriod.class))})
+            })
     @PutMapping("/new")
-    public ResponseEntity<TrialPeriod> updateTrialPeriod(@Parameter(description = "Period to be created")
+    public ResponseEntity<TrialPeriod> updateTrialPeriod(@Parameter(description = "Period to be updated")
                                                          @RequestBody TrialPeriod period) {
         TrialPeriod findTrialPeriod = trialPeriodService.editTrialPeriod(period);
         if (findTrialPeriod == null) {

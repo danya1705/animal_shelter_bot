@@ -1,8 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
-import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
 
@@ -16,7 +14,7 @@ public class CustodianService {
         this.userCustodianRepository = userCustodianRepository;
     }
 
-    public UserCustodian createCustodian (UserCustodian custodian) {
+    public UserCustodian createCustodian(UserCustodian custodian) {
         return userCustodianRepository.save(custodian);
     }
 
@@ -30,6 +28,16 @@ public class CustodianService {
 
     public List<UserCustodian> findAll() {
         return userCustodianRepository.findAll();
+    }
+
+    /**
+     * Проверка на существование пользователя в БД
+     */
+    public Boolean findUserByChatId(Long chatId) {
+        UserCustodian userCustodian = userCustodianRepository.findUserCustodianByUserChatId(chatId);
+        if (userCustodian != null) {
+            return userCustodian.getUserChatId() == chatId;
+        } return false;
     }
 
 }

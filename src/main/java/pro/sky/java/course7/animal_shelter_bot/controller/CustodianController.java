@@ -65,6 +65,16 @@ public class CustodianController {
         }
         return ResponseEntity.ok(foundCustodian);
     }
+    @Operation(summary = "Get true/false about custodian existing by it's chatId", tags = "Custodian")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Answer",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserCustodian.class))})
+    })
+    @GetMapping("/isCustodianByChatIdExists")
+    public Boolean isCustodianByChatIdExists(Long chatId) {
+        return custodianService.findUserByChatId(chatId);
+    }
 
 
 }
