@@ -28,12 +28,10 @@ public class UpdateService {
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
 
-
     public UpdateService(KeyboardService keyboardService, CustodianService custodianService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
     }
-
 
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
@@ -62,7 +60,6 @@ public class UpdateService {
         }
 
         if (!custodianService.findUserByChatId(chatId)) {
-            System.out.println(chatId + " oops, there's no such user");
             return handleUnregisteredUserMessage(chatId);
         } else {
             statusMap.putIfAbsent(chatId, BotStatus.GREETINGS_MESSAGE);
@@ -154,7 +151,7 @@ public class UpdateService {
         return message;
     }
 
-    private SendMessage handleUnregisteredUserMessage(Long chatId) {
+    public SendMessage handleUnregisteredUserMessage(Long chatId) {
         SendMessage message = createMessage(chatId, BotStatus.UNREGISTERED_USER_MESSAGE, keyboardService.sendContactKeyboard());
         statusMap.put(chatId, BotStatus.START_BUTTON);
         return message;
@@ -173,6 +170,10 @@ public class UpdateService {
     public SendMessage createMessage(Long chatId, BotStatus botStatus, ReplyKeyboardMarkup markup) {
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
         return message.parseMode(ParseMode.HTML).replyMarkup(markup);
+    }
+
+    public void editStatusMap(Long chatId, BotStatus botStatus) {
+        statusMap.put(chatId, botStatus);
     }
 
 
