@@ -54,8 +54,25 @@ public class KeyboardService {
 
         return new InlineKeyboardMarkup(buttons);
     }
-
     public InlineKeyboardMarkup stageOneMenuKeyboard() {
+
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[2][1];
+
+        buttons[0] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M05_FIRST_BUTTON.getText())
+                        .callbackData(Buttons.M05_FIRST_BUTTON.getCallback()),
+                new InlineKeyboardButton(Buttons.M05_SECOND_BUTTON.getText())
+                                .callbackData(Buttons.M05_SECOND_BUTTON.getCallback())
+        };
+        buttons[1] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
+                        .callbackData(Buttons.BACK_BUTTON.getCallback())
+        };
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+
+    public InlineKeyboardMarkup stageTwoMenuKeyboard() {
 
         InlineKeyboardButton[][] buttons = new InlineKeyboardButton[3][2];
 
@@ -81,13 +98,14 @@ public class KeyboardService {
         return new InlineKeyboardMarkup(buttons);
     }
 
-    public InlineKeyboardMarkup stageTwoMenuKeyboard() {
+
+    public InlineKeyboardMarkup stageThreeMenuKeyboard() {
 
         InlineKeyboardButton[][] buttons = new InlineKeyboardButton[12][1];
 
         buttons[0] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_FIRST_BUTTON.getText())
-                        .callbackData(Buttons.M2_FIRST_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_FIRST_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_FIRST_DOG_BUTTON.getCallback())
         };
         buttons[1] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_SECOND_BUTTON.getText())
@@ -98,24 +116,24 @@ public class KeyboardService {
                         .callbackData(Buttons.M2_THIRD_BUTTON.getCallback())
         };
         buttons[3] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_FOURTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_FOURTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_FOURTH_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_FOURTH_DOG_BUTTON.getCallback())
         };
         buttons[4] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_FIFTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_FIFTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_FIFTH_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_FIFTH_DOG_BUTTON.getCallback())
         };
         buttons[5] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_SIXTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_SIXTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_SIXTH_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_SIXTH_DOG_BUTTON.getCallback())
         };
         buttons[6] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_SEVENTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_SEVENTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_SEVENTH_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_SEVENTH_DOG_BUTTON.getCallback())
         };
         buttons[7] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_EIGHTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_EIGHTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M2_EIGHTH_DOG_BUTTON.getText())
+                        .callbackData(Buttons.M2_EIGHTH_DOG_BUTTON.getCallback())
         };
         buttons[8] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_NINTH_BUTTON.getText())

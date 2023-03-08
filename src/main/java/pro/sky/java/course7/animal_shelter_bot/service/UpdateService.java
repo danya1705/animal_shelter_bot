@@ -99,6 +99,22 @@ public class UpdateService {
                     return handleGetStageTwoMenuCallback(chatId, callbackData);
                 }
             }
+            case STAGE_THREE_MENU -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageThreeMenuCallback(chatId, callbackData);
+                }
+            }
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
+
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
@@ -107,13 +123,12 @@ public class UpdateService {
     private SendMessage handleGetStageTwoMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
-
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
@@ -127,13 +142,13 @@ public class UpdateService {
     private SendMessage handleGetStageNullMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M0_FIRST_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
-            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
+            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
+            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
         }
 
         if (callbackData.equals(Buttons.M0_SECOND_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
-            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
