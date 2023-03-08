@@ -9,6 +9,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
 import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
+import pro.sky.java.course7.animal_shelter_bot.model.PetInformationButtons;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 
 import java.util.HashMap;
@@ -110,8 +111,8 @@ public class UpdateService {
     private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
-            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
@@ -128,6 +129,14 @@ public class UpdateService {
     }
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
+        if (callbackData.equals(Buttons.M05_SECOND_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuDogKeyboard());
+        }
+        if (callbackData.equals(Buttons.M05_FIRST_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuCatKeyboard());
+        }
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
@@ -190,6 +199,7 @@ public class UpdateService {
     public void editStatusMap(Long chatId, BotStatus botStatus) {
         statusMap.put(chatId, botStatus);
     }
+
 
 
 }

@@ -28,7 +28,7 @@ public enum Buttons {
     M2_SEVENTH_CAT_BUTTON("Советы фелинолога", "M2B1Callback"),
     M2_EIGHTH_DOG_BUTTON("Проверенные кинологи", "M2B1Callback"),
     M2_EIGHTH_CAT_BUTTON("Проверенные фелинологи", "M2B1Callback"),
-    M2_NINTH_BUTTON ("Возможнве причины отказа", "M2B1Callback"),
+    M2_NINTH_BUTTON ("Возможные причины отказа", "M2B1Callback"),
     M2_TENTH_BUTTON ("Оставить контактные данные", "M2B1Callback"),
     M2_ELEVENTH_BUTTON ("Позвать волонтёра", "M2B1Callback");
 
