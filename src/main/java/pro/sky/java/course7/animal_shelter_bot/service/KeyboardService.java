@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
+import pro.sky.java.course7.animal_shelter_bot.model.PetInformationButtons;
 import pro.sky.java.course7.animal_shelter_bot.model.ReplyButton;
 
 @Service
@@ -34,6 +35,7 @@ public class KeyboardService {
                 .callbackData(Buttons.BACK_BUTTON.getCallback());
         return new InlineKeyboardMarkup(buttons);
     }
+
 
     public InlineKeyboardMarkup stageNullMenuKeyboard() {
 
@@ -99,7 +101,7 @@ public class KeyboardService {
     }
 
 
-    public InlineKeyboardMarkup stageThreeMenuKeyboard() {
+    public InlineKeyboardMarkup stageThreeMenuDogKeyboard() {
 
         InlineKeyboardButton[][] buttons = new InlineKeyboardButton[12][1];
 
@@ -134,6 +136,62 @@ public class KeyboardService {
         buttons[7] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_EIGHTH_DOG_BUTTON.getText())
                         .callbackData(Buttons.M2_EIGHTH_DOG_BUTTON.getCallback())
+        };
+        buttons[8] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_NINTH_BUTTON.getText())
+                        .callbackData(Buttons.M2_NINTH_BUTTON.getCallback())
+        };
+        buttons[9] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_TENTH_BUTTON.getText())
+                        .callbackData(Buttons.M2_TENTH_BUTTON.getCallback())
+        };
+        buttons[10] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_ELEVENTH_BUTTON.getText())
+                        .callbackData(Buttons.M2_ELEVENTH_BUTTON.getCallback())
+        };
+        buttons[11] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
+                        .callbackData(Buttons.BACK_BUTTON.getCallback())
+        };
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+
+    public InlineKeyboardMarkup stageThreeMenuCatKeyboard() {
+
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[12][1];
+
+        buttons[0] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_FIRST_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_FIRST_CAT_BUTTON.getCallback())
+        };
+        buttons[1] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_SECOND_BUTTON.getText())
+                        .callbackData(Buttons.M2_SECOND_BUTTON.getCallback())
+        };
+        buttons[2] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_THIRD_BUTTON.getText())
+                        .callbackData(Buttons.M2_THIRD_BUTTON.getCallback())
+        };
+        buttons[3] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_FOURTH_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_FOURTH_CAT_BUTTON.getCallback())
+        };
+        buttons[4] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_FIFTH_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_FIFTH_CAT_BUTTON.getCallback())
+        };
+        buttons[5] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_SIXTH_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_SIXTH_CAT_BUTTON.getCallback())
+        };
+        buttons[6] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_SEVENTH_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_SEVENTH_CAT_BUTTON.getCallback())
+        };
+        buttons[7] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M2_EIGHTH_CAT_BUTTON.getText())
+                        .callbackData(Buttons.M2_EIGHTH_CAT_BUTTON.getCallback())
         };
         buttons[8] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_NINTH_BUTTON.getText())
