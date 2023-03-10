@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 public class TrialPeriod {
@@ -64,5 +65,30 @@ public class TrialPeriod {
 
     public void setAnimalId(Long animalId) {
         this.animalId = animalId;
+    }
+
+    @Override
+    public String toString() {
+        return "TrialPeriod{" +
+                "id=" + id +
+                ", StartDate=" + StartDate +
+                ", EndDate=" + EndDate +
+                ", volunteerId=" + volunteerId +
+                ", userId=" + userId +
+                ", animalId=" + animalId +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrialPeriod that = (TrialPeriod) o;
+        return id.equals(that.id) && Objects.equals(StartDate, that.StartDate) && Objects.equals(EndDate, that.EndDate) && volunteerId.equals(that.volunteerId) && userId.equals(that.userId) && animalId.equals(that.animalId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, StartDate, EndDate, volunteerId, userId, animalId);
     }
 }

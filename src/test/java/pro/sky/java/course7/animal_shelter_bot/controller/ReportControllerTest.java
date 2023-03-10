@@ -11,14 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
-import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
-import pro.sky.java.course7.animal_shelter_bot.service.AnimalService;
-import pro.sky.java.course7.animal_shelter_bot.service.CustodianService;
-import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
-import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
+import pro.sky.java.course7.animal_shelter_bot.repository.*;
+import pro.sky.java.course7.animal_shelter_bot.service.*;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -37,23 +31,27 @@ class ReportControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private ReportRepository reportRepository;
-    @MockBean
     private TrialPeriodRepository trialPeriodRepository;
+    @MockBean
+    private ReportRepository reportRepository;
     @MockBean
     private UserCustodianRepository userCustodianRepository;
     @MockBean
     private AnimalRepository animalRepository;
     @MockBean
+    private VolunteerRepositiory volunteerRepositiory;
+    @MockBean
     private TelegramBotUpdatesListener telegramBotUpdatesListener;
     @SpyBean
-    private ReportService reportService;
-    @SpyBean
     private TrialPeriodService trialPeriodService;
+    @SpyBean
+    private ReportService reportService;
     @SpyBean
     private AnimalService animalService;
     @SpyBean
     private CustodianService custodianService;
+    @SpyBean
+    private VolunteerService volunteerService;
     @InjectMocks
     private ReportController reportController;
 

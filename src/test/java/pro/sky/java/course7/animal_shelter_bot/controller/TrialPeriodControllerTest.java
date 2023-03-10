@@ -12,17 +12,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
-import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
-import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
-import pro.sky.java.course7.animal_shelter_bot.service.AnimalService;
-import pro.sky.java.course7.animal_shelter_bot.service.CustodianService;
-import pro.sky.java.course7.animal_shelter_bot.service.ReportService;
-import pro.sky.java.course7.animal_shelter_bot.service.TrialPeriodService;
+import pro.sky.java.course7.animal_shelter_bot.repository.*;
+import pro.sky.java.course7.animal_shelter_bot.service.*;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
@@ -42,6 +38,8 @@ class TrialPeriodControllerTest {
     @MockBean
     private AnimalRepository animalRepository;
     @MockBean
+    private VolunteerRepositiory volunteerRepositiory;
+    @MockBean
     private TelegramBotUpdatesListener telegramBotUpdatesListener;
     @SpyBean
     private TrialPeriodService trialPeriodService;
@@ -51,8 +49,73 @@ class TrialPeriodControllerTest {
     private AnimalService animalService;
     @SpyBean
     private CustodianService custodianService;
+    @SpyBean
+    private VolunteerService volunteerService;
     @InjectMocks
     private TrialPeriodController trialPeriodController;
+
+    @Test
+    void getTrialPeriodListTest() throws Exception {
+
+        Long firstId = 1L;
+        Long secondId = 2L;
+        Long thirdId = 3L;
+
+        TrialPeriod firstTrialPeriod = new TrialPeriod();
+        firstTrialPeriod.setId(firstId);
+
+        TrialPeriod secondTrialPeriod = new TrialPeriod();
+        secondTrialPeriod.setId(secondId);
+
+        TrialPeriod thirdTrialPeriod = new TrialPeriod();
+        thirdTrialPeriod.setId(thirdId);
+
+        when(trialPeriodRepository.findAll())
+                .thenReturn(List.of(firstTrialPeriod, secondTrialPeriod, thirdTrialPeriod));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/getAll"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].id").value(firstId))
+                .andExpect(jsonPath("$[1].id").value(secondId))
+                .andExpect(jsonPath("$[2].id").value(thirdId));
+    }
+
+    @Test
+    void createTrialPeriodTest() throws Exception {
+
+        Long id = 1L;
+        Long volunteerId = 123L;
+        Long userId = 456L;
+        Long animalId = 789L;
+
+        TrialPeriod trialPeriod = new TrialPeriod();
+        trialPeriod.setId(id);
+        trialPeriod.setVolunteerId(volunteerId);
+        trialPeriod.setUserId(userId);
+        trialPeriod.setAnimalId(animalId);
+
+        JSONObject requestObject = new JSONObject();
+        requestObject.put("id", id);
+        requestObject.put("volunteerId", volunteerId);
+        requestObject.put("userId", userId);
+        requestObject.put("animalId", animalId);
+
+        when(trialPeriodRepository.save(eq(trialPeriod)))
+                .thenReturn(trialPeriod);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/new")
+                        .content(requestObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.volunteerId").value(volunteerId))
+                .andExpect(jsonPath("$.userId").value(userId))
+                .andExpect(jsonPath("$.animalId").value(animalId));
+    }
 
     @Test
     void updateTrialPeriodTest() throws Exception {

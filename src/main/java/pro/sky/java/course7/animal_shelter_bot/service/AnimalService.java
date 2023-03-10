@@ -33,7 +33,7 @@ public class AnimalService {
         if (animalDelete != null) {
             animalRepository.deleteById(id);
         }
-        return null;
+        return animalDelete;
     }
 
     public Animal updateAnimal(Animal animal) {

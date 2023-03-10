@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class Volunteer {
@@ -48,5 +49,18 @@ public class Volunteer {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Volunteer volunteer = (Volunteer) o;
+        return available == volunteer.available && id.equals(volunteer.id) && Objects.equals(volunteerName, volunteer.volunteerName) && Objects.equals(chatId, volunteer.chatId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, volunteerName, chatId, available);
     }
 }

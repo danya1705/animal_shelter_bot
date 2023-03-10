@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 //Сущьность, опекун животных.
@@ -67,6 +67,16 @@ public class UserCustodian {
         this.contacts = contacts;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserCustodian that = (UserCustodian) o;
+        return userChatId == that.userChatId && id.equals(that.id) && Objects.equals(fullName, that.fullName) && Objects.equals(contacts, that.contacts);
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userChatId, fullName, contacts);
+    }
 }

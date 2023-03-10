@@ -34,7 +34,7 @@ public class VolunteerService {
         if (volunteerDelete != null) {
             volunteerRepositiory.deleteById(id);
         }
-        return null;
+        return volunteerDelete;
     }
 
     public Volunteer updateVolunteer(Volunteer volunteer) {
