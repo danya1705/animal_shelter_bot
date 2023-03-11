@@ -1,8 +1,10 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
+import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
-import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.repository.ReportRepository;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 
@@ -17,12 +19,12 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final TrialPeriodRepository trialPeriodRepository;
-    private final TelegramBotUpdatesListener telegramBotUpdatesListener;
+    private final TelegramBot telegramBot;
 
-    public ReportService(ReportRepository reportRepository, TrialPeriodRepository trialPeriodRepository, TelegramBotUpdatesListener telegramBotUpdatesListener) {
+    public ReportService(ReportRepository reportRepository, TrialPeriodRepository trialPeriodRepository, TelegramBot telegramBot) {
         this.reportRepository = reportRepository;
         this.trialPeriodRepository = trialPeriodRepository;
-        this.telegramBotUpdatesListener = telegramBotUpdatesListener;
+        this.telegramBot = telegramBot;
     }
 
     public List<Report> getReports(Long volunteerId, String stringDateFrom, String stringDateTo) {
@@ -41,6 +43,11 @@ public class ReportService {
     }
 
     public void sendMessage(Long id, String text) {
-        telegramBotUpdatesListener.sendMessageToChat(id, text);
+        SendMessage message = new SendMessage(id, text);
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    public Report createReport(Report report) {
+        return reportRepository.save(report);
     }
 }
