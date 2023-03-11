@@ -1,6 +1,7 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.model.Contact;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -9,9 +10,11 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
 import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
-import pro.sky.java.course7.animal_shelter_bot.model.PetInformationButtons;
+import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,18 +23,23 @@ import java.util.Map;
  */
 @Service
 public class UpdateService {
-
+    private static String reportPhotoId;
+    private static String reportDiet;
+    private static String reportOverall;
+    private static String reportChanges;
     private final KeyboardService keyboardService;
 
     private final CustodianService custodianService;
+    private final ReportCRUDService reportCRUDService;
     /**
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
 
-    public UpdateService(KeyboardService keyboardService, CustodianService custodianService) {
+    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportCRUDService reportCRUDService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
+        this.reportCRUDService = reportCRUDService;
     }
 
     /**
@@ -83,7 +91,6 @@ public class UpdateService {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageNullMenuCallback(chatId, callbackData);
                 }
-
             }
             case STAGE_ONE_MENU -> {
                 if (update.callbackQuery() != null) {
@@ -103,9 +110,173 @@ public class UpdateService {
                     return handleGetStageThreeMenuCallback(chatId, callbackData);
                 }
             }
+            case STAGE_SEND_REPORT_MENU_NULL -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleSendReportButtonMessage(chatId, callbackData);
+                }
+            }
+            case STAGE_SEND_REPORT_MENU_PHOTO -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handlePhotoButtonReportMessage(chatId, callbackData);
+                }
+                if (update.message().photo() != null || update.message().text() != null) {
+                    PhotoSize[] photo = update.message().photo();
+                    return handlePhotoReportMessage(chatId, photo);
+                }
+            }
+            case STAGE_SEND_REPORT_MENU_DIET -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleDietReportMessageButton(chatId, callbackData);
+                }
+                if (update.message().text() != null) {
+                    String text = update.message().text();
+                    return handleDietReportMessage(chatId, text);
+                }
+            }
+            case STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleOverallReportMessageButton(chatId, callbackData);
+                }
+                if (update.message().text() != null) {
+                    String text = update.message().text();
+                    return handleOverallReportMessage(chatId, text);
+                }
+            }
+            case STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleChangesReportMessageButton(chatId, callbackData);
+                }
+                if (update.message().text() != null) {
+                    String text = update.message().text();
+                    return handleChangesReportMessage(chatId, text);
+                }
+            }
+            case STAGE_SEND_REPORT_MENU_FINISH -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackToMainReportMessage(chatId, callbackData);
+                }
+            }
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
+    public SendMessage handleSendReportButtonMessage(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.REPORT_SEND_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_PHOTO);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_PHOTO, keyboardService.stageAbortReportKeyboard());
+        }
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+
+    public SendMessage handlePhotoButtonReportMessage(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+        if (callbackData.equals(Buttons.REPORT_SEND_CONFIRM_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET, keyboardService.stageAbortReportKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+
+    public SendMessage handlePhotoReportMessage(Long chatId, PhotoSize[] photo) {
+        if (photo != null) {
+            reportPhotoId = photo[3].fileId();
+            System.out.println(Arrays.toString(photo));
+            System.out.println(reportPhotoId);
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET, keyboardService.stageAbortReportKeyboard());
+        } else {
+            return createMessage(chatId, "Отправить нужно только фотографию!", keyboardService.stageAbortReportKeyboard());
+        }
+    }
+
+    public SendMessage handleDietReportMessageButton(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+    public SendMessage handleDietReportMessage(Long chatId, String text) {
+        if (text != null) {
+            reportDiet = text;
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS, keyboardService.stageAbortReportKeyboard());
+        } else {
+            return createMessage(chatId, "Отправить нужно только текстовое описание меню питомца!"
+                    , keyboardService.stageAbortReportKeyboard());
+        }
+    }
+
+    public SendMessage handleOverallReportMessageButton(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+        if (callbackData.equals(Buttons.REPORT_SEND_CONFIRM_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE, keyboardService.stageAbortReportKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+    public SendMessage handleOverallReportMessage(Long chatId, String text) {
+        if (text != null) {
+            reportOverall = text;
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE, keyboardService.stageAbortReportKeyboard());
+        } else {
+            return createMessage(chatId, "Отправить нужно только текстовое описание самочувствия питомца!"
+                    , keyboardService.stageAbortReportKeyboard());
+        }
+    }
+
+    public SendMessage handleChangesReportMessageButton(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+    public SendMessage handleChangesReportMessage(Long chatId, String text) {
+        if (text != null) {
+            reportChanges = text;
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH);
+            UserCustodian custodian = custodianService.userCustodianRepository
+                    .findUserCustodianByUserChatId(chatId);
+            Report report = new Report(LocalDate.now(), reportPhotoId, reportDiet, reportOverall, reportChanges, custodian.getId());
+            reportCRUDService.createReport(report);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH, keyboardService.backButtonKeyboard());
+        } else {
+            return createMessage(chatId, "Отправить нужно только текстовое описание об изминениях в поведении питомца!"
+                    , keyboardService.stageAbortReportKeyboard());
+        }
+    }
+
+    public SendMessage handleBackToMainReportMessage(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
     }
 
     private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
@@ -127,6 +298,7 @@ public class UpdateService {
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
+
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M05_SECOND_BUTTON.getCallback())) {
@@ -155,6 +327,10 @@ public class UpdateService {
         if (callbackData.equals(Buttons.M0_SECOND_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
+        }
+        if (callbackData.equals(Buttons.M0_THIRD_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL, keyboardService.stageNullReportKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
@@ -196,10 +372,14 @@ public class UpdateService {
         return message.parseMode(ParseMode.HTML).replyMarkup(markup);
     }
 
+    public SendMessage createMessage(Long chatId, String text, InlineKeyboardMarkup markup) {
+        SendMessage message = new SendMessage(chatId, text);
+        return message.parseMode(ParseMode.HTML).replyMarkup(markup);
+    }
+
     public void editStatusMap(Long chatId, BotStatus botStatus) {
         statusMap.put(chatId, botStatus);
     }
-
 
 
 }

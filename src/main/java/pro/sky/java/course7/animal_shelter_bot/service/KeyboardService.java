@@ -6,7 +6,6 @@ import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
-import pro.sky.java.course7.animal_shelter_bot.model.PetInformationButtons;
 import pro.sky.java.course7.animal_shelter_bot.model.ReplyButton;
 
 @Service
@@ -209,6 +208,27 @@ public class KeyboardService {
                 new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
                         .callbackData(Buttons.BACK_BUTTON.getCallback())
         };
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+
+    public InlineKeyboardMarkup stageNullReportKeyboard() {
+
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[2];
+
+        buttons[0] = new InlineKeyboardButton(Buttons.REPORT_SEND_BUTTON.getText())
+                        .callbackData(Buttons.REPORT_SEND_BUTTON.getCallback());
+        buttons[1] = new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
+                        .callbackData(Buttons.BACK_BUTTON.getCallback());
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+    public InlineKeyboardMarkup stageAbortReportKeyboard() {
+
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];
+
+        buttons[0] = new InlineKeyboardButton(Buttons.REPORT_SEND_ABORT_BUTTON.getText())
+                        .callbackData(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback());
 
         return new InlineKeyboardMarkup(buttons);
     }

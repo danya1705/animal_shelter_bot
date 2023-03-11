@@ -30,7 +30,10 @@ public enum Buttons {
     M2_EIGHTH_CAT_BUTTON("Проверенные фелинологи", "M2B1Callback"),
     M2_NINTH_BUTTON ("Возможные причины отказа", "M2B1Callback"),
     M2_TENTH_BUTTON ("Оставить контактные данные", "M2B1Callback"),
-    M2_ELEVENTH_BUTTON ("Позвать волонтёра", "M2B1Callback");
+    M2_ELEVENTH_BUTTON ("Позвать волонтёра", "M2B1Callback"),
+    REPORT_SEND_BUTTON("Отправить отчет", "RSBCallback"),
+    REPORT_SEND_CONFIRM_BUTTON("Отправил", "RSСBCallback"),
+    REPORT_SEND_ABORT_BUTTON("Отмена", "RSABCallback");
 
 
     private final String text;

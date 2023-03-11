@@ -71,7 +71,9 @@ CREATE TABLE volunteer
 ALTER TABLE trial_period DROP COLUMN volunteer ;
 ALTER TABLE trial_period ADD volunteer_id BIGINT NOT NULL REFERENCES volunteer(id);
 
-
+--changeset dmitry:2
+ALTER TABLE report ALTER COLUMN foto TYPE TEXT;
+ALTER TABLE report RENAME COLUMN foto TO photo;
 
 
 

@@ -16,7 +16,7 @@ public class Report {
 
     private LocalDate reportDate;
 
-    private byte[] foto;
+    private String photo;
 
     private String diet;
 
@@ -25,6 +25,18 @@ public class Report {
     private String behaviour;
 
     private Long userId;
+
+    public Report() {
+    }
+
+    public Report(LocalDate reportDate, String photo, String diet, String wellbeing, String behaviour, Long userId) {
+        this.reportDate = reportDate;
+        this.photo = photo;
+        this.diet = diet;
+        this.wellbeing = wellbeing;
+        this.behaviour = behaviour;
+        this.userId = userId;
+    }
 
     public Long getId() {
         return id;
@@ -42,12 +54,12 @@ public class Report {
         this.reportDate = reportDate;
     }
 
-    public byte[] getFoto() {
-        return foto;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setFoto(byte[] foto) {
-        this.foto = foto;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public String getDiet() {
@@ -87,7 +99,7 @@ public class Report {
         return "Report{" +
                 "id=" + id +
                 ", reportDate=" + reportDate +
-                ", foto=" + Arrays.toString(foto) +
+                ", photo=" + photo +
                 ", diet='" + diet + '\'' +
                 ", wellbeing='" + wellbeing + '\'' +
                 ", behaviour='" + behaviour + '\'' +
