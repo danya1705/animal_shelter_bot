@@ -34,7 +34,20 @@ public class KeyboardService {
                 .callbackData(Buttons.BACK_BUTTON.getCallback());
         return new InlineKeyboardMarkup(buttons);
     }
+    public InlineKeyboardMarkup backButtonKeyboardDog() {
 
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];
+        buttons[0] = new InlineKeyboardButton(Buttons.BACK_BUTTON_DOG.getText())
+                .callbackData(Buttons.BACK_BUTTON_DOG.getCallback());
+        return new InlineKeyboardMarkup(buttons);
+    }
+    public InlineKeyboardMarkup backButtonKeyboardCat() {
+
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];
+        buttons[0] = new InlineKeyboardButton(Buttons.BACK_BUTTON_CAT.getText())
+                .callbackData(Buttons.BACK_BUTTON_CAT.getCallback());
+        return new InlineKeyboardMarkup(buttons);
+    }
 
     public InlineKeyboardMarkup stageNullMenuKeyboard() {
 

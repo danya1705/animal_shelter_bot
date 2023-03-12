@@ -35,6 +35,7 @@ public class UpdateService {
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
+    private final Map<Long, String> statusMenu = new HashMap<>();
 
     public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportCRUDService reportCRUDService) {
         this.keyboardService = keyboardService;
@@ -110,6 +111,34 @@ public class UpdateService {
                     return handleGetStageThreeMenuCallback(chatId, callbackData);
                 }
             }
+            case GETTING_TO_KNOW_A_DOG -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackTheDogInfo(chatId, callbackData);
+                }
+            }
+            case CAT_BUTTON -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackTheCatInfo(chatId, callbackData);
+                }
+            }
+            case DOG_BUTTON -> {
+                if (update.callbackQuery() != null) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackTheDogInfo(chatId, callbackData);
+                }
+            }
+            case COMMON_BUTTON -> {
+                if (update.callbackQuery() != null && statusMenu.containsValue("Dog")) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackTheDogInfo(chatId, callbackData);
+                }
+                if (update.callbackQuery() != null && statusMenu.containsValue("Cat")) {
+                    String callbackData = update.callbackQuery().data();
+                    return handleBackTheCatInfo(chatId, callbackData);
+                }
+            }
             case STAGE_SEND_REPORT_MENU_NULL -> {
                 if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
@@ -162,6 +191,7 @@ public class UpdateService {
                     return handleBackToMainReportMessage(chatId, callbackData);
                 }
             }
+
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
@@ -179,7 +209,6 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
     public SendMessage handlePhotoButtonReportMessage(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -192,7 +221,6 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
     public SendMessage handlePhotoReportMessage(Long chatId, PhotoSize[] photo) {
         if (photo != null) {
             reportPhotoId = photo[3].fileId();
@@ -204,7 +232,6 @@ public class UpdateService {
             return createMessage(chatId, "Отправить нужно только фотографию!", keyboardService.stageAbortReportKeyboard());
         }
     }
-
     public SendMessage handleDietReportMessageButton(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -213,6 +240,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handleDietReportMessage(Long chatId, String text) {
         if (text != null) {
             reportDiet = text;
@@ -236,6 +264,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handleOverallReportMessage(Long chatId, String text) {
         if (text != null) {
             reportOverall = text;
@@ -255,6 +284,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handleChangesReportMessage(Long chatId, String text) {
         if (text != null) {
             reportChanges = text;
@@ -279,13 +309,107 @@ public class UpdateService {
         }
     }
 
-    private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
+    public SendMessage handleBackTheDogInfo(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.BACK_BUTTON_DOG.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageThreeMenuDogKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
 
+    public SendMessage handleBackTheCatInfo(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.BACK_BUTTON_CAT.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageThreeMenuCatKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
+
+    private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
         }
-
+        if (callbackData.equals(Buttons.M2_FIRST_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.GETTING_TO_KNOW_A_DOG, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_FIRST_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.GETTING_TO_KNOW_A_CAT, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_SECOND_BUTTON.getCallback())) {
+            if (statusMenu.containsValue("Dog")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.REQUIRED_DOCUMENTS, keyboardService.backButtonKeyboardDog());
+            }
+            if (statusMenu.containsValue("Cat")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.REQUIRED_DOCUMENTS, keyboardService.backButtonKeyboardCat());
+            }
+        }
+        if (callbackData.equals(Buttons.M2_THIRD_BUTTON.getCallback())) {
+            if (statusMenu.containsValue("Dog")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.ANIMAL_TRANSPORTATION, keyboardService.backButtonKeyboardDog());
+            }
+            if (statusMenu.containsValue("Cat")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.ANIMAL_TRANSPORTATION, keyboardService.backButtonKeyboardCat());
+            }
+        }
+        if (callbackData.equals(Buttons.M2_FOURTH_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.HOME_IMPROVEMENT_FOR_A_PUPPY, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_FOURTH_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.HOME_IMPROVEMENT_FOR_A_KITTEN, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_FIFTH_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_DOG, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_FIFTH_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_CAT, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_SIXTH_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.CARING_FOR_A_DOG_WITH_DISABILITIES, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_SIXTH_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.CARING_FOR_A_CAT_WITH_DISABILITIES, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_SEVENTH_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.TIPS_FROM_A_DOG_HANDLER, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_SEVENTH_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.FELINOLOGIST_ADVICE, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_EIGHTH_DOG_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.DOG_BUTTON);
+            return createMessage(chatId, BotStatus.PROVEN_DOG_HANDLERS, keyboardService.backButtonKeyboardDog());
+        }
+        if (callbackData.equals(Buttons.M2_EIGHTH_CAT_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.CAT_BUTTON);
+            return createMessage(chatId, BotStatus.PROVEN_FELINOLOGISTS, keyboardService.backButtonKeyboardCat());
+        }
+        if (callbackData.equals(Buttons.M2_NINTH_BUTTON.getCallback())) {
+            if (statusMenu.containsValue("Dog")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.REASONS_FOR_REFUSAL, keyboardService.backButtonKeyboardDog());
+            }
+            if (statusMenu.containsValue("Cat")) {
+                statusMap.put(chatId, BotStatus.COMMON_BUTTON);
+                return createMessage(chatId, BotStatus.REASONS_FOR_REFUSAL, keyboardService.backButtonKeyboardCat());
+            }
+        }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -296,17 +420,20 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
 
+
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M05_SECOND_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
+            statusMenu.put(chatId, "Dog");
             return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuDogKeyboard());
         }
         if (callbackData.equals(Buttons.M05_FIRST_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+            statusMenu.put(chatId, "Cat");
+            statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
             return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuCatKeyboard());
         }
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
@@ -357,6 +484,7 @@ public class UpdateService {
         return message;
     }
 
+
     public SendMessage createMessage(Long chatId, BotStatus botStatus) {
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());
         return message.parseMode(ParseMode.HTML);
@@ -380,6 +508,5 @@ public class UpdateService {
     public void editStatusMap(Long chatId, BotStatus botStatus) {
         statusMap.put(chatId, botStatus);
     }
-
 
 }
