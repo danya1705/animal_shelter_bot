@@ -54,12 +54,14 @@ public class UpdateService {
         if (update.message() != null) {
             chatId = update.message().chat().id();
             if (update.message().contact() != null) {
-                chatId = update.message().chat().id();
-                Contact contact = update.message().contact();
-                String name = contact.firstName() + " " + contact.lastName();
-                String phone = contact.phoneNumber();
-                UserCustodian custodian = new UserCustodian(chatId, name, phone);
-                custodianService.createCustodian(custodian);
+                if (!custodianService.findUserByChatId(chatId)) {
+                    chatId = update.message().chat().id();
+                    Contact contact = update.message().contact();
+                    String name = contact.firstName() + " " + contact.lastName();
+                    String phone = contact.phoneNumber();
+                    UserCustodian custodian = new UserCustodian(chatId, name, phone);
+                    custodianService.createCustodian(custodian);
+                }
                 return handlePrintGreetingsMessage(chatId);
             }
         } else if (update.callbackQuery() != null) {
