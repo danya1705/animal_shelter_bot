@@ -28,19 +28,18 @@ public class UpdateService {
     private static String reportOverall;
     private static String reportChanges;
     private final KeyboardService keyboardService;
-
     private final CustodianService custodianService;
-    private final ReportCRUDService reportCRUDService;
+    private final ReportService reportService;
     /**
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
     private final Map<Long, String> statusMenu = new HashMap<>();
 
-    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportCRUDService reportCRUDService) {
+    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
-        this.reportCRUDService = reportCRUDService;
+        this.reportService = reportService;
     }
 
     /**
@@ -223,7 +222,8 @@ public class UpdateService {
     }
     public SendMessage handlePhotoReportMessage(Long chatId, PhotoSize[] photo) {
         if (photo != null) {
-            reportPhotoId = photo[3].fileId();
+            int size = photo.length;
+            reportPhotoId = photo[size - 1].fileId();
             System.out.println(Arrays.toString(photo));
             System.out.println(reportPhotoId);
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
@@ -292,10 +292,10 @@ public class UpdateService {
             UserCustodian custodian = custodianService.userCustodianRepository
                     .findUserCustodianByUserChatId(chatId);
             Report report = new Report(LocalDate.now(), reportPhotoId, reportDiet, reportOverall, reportChanges, custodian.getId());
-            reportCRUDService.createReport(report);
+            reportService.createReport(report);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH, keyboardService.backButtonKeyboard());
         } else {
-            return createMessage(chatId, "Отправить нужно только текстовое описание об изминениях в поведении питомца!"
+            return createMessage(chatId, "Отправить нужно только текстовое описание об изменениях в поведении питомца!"
                     , keyboardService.stageAbortReportKeyboard());
         }
     }
