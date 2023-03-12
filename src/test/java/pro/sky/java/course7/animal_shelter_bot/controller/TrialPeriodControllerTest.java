@@ -1,5 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.controller;
 
+import com.pengrad.telegrambot.TelegramBot;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -10,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.*;
 import pro.sky.java.course7.animal_shelter_bot.service.*;
@@ -40,7 +40,7 @@ class TrialPeriodControllerTest {
     @MockBean
     private VolunteerRepositiory volunteerRepositiory;
     @MockBean
-    private TelegramBotUpdatesListener telegramBotUpdatesListener;
+    private TelegramBot telegramBot;
     @SpyBean
     private TrialPeriodService trialPeriodService;
     @SpyBean

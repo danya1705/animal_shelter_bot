@@ -314,7 +314,7 @@ public class UpdateService {
     public SendMessage handleBackTheDogInfo(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON_DOG.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
-            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageThreeMenuDogKeyboard());
+            return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuDogKeyboard());
         } else {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
@@ -323,7 +323,7 @@ public class UpdateService {
     public SendMessage handleBackTheCatInfo(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON_CAT.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
-            return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageThreeMenuCatKeyboard());
+            return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuCatKeyboard());
         } else {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
@@ -422,7 +422,6 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
 
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -509,6 +508,10 @@ public class UpdateService {
 
     public void editStatusMap(Long chatId, BotStatus botStatus) {
         statusMap.put(chatId, botStatus);
+    }
+
+    public void editStatusMenu(Long chatId, String str) {
+        statusMenu.put(chatId, str);
     }
 
 }
