@@ -112,10 +112,10 @@ public class UpdateService {
                     return handleGetStageThreeMenuCallback(chatId, callbackData);
                 }
             }
-            case GETTING_TO_KNOW_A_DOG -> {
+            case INFO_BUTTON -> {
                 if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
-                    return handleBackTheDogInfo(chatId, callbackData);
+                    return handleBackInfoShelter(chatId, callbackData);
                 }
             }
             case CAT_BUTTON -> {
@@ -328,6 +328,14 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+    public SendMessage handleBackInfoShelter(Long chatId, String callbackData) {
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
+            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
+        } else {
+            return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+        }
+    }
 
     private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
@@ -419,7 +427,19 @@ public class UpdateService {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
-            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+        if (callbackData.equals(Buttons.M1_FIRST_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.INFO_BUTTON);
+            return createMessage(chatId, BotStatus.INFORMATION_ABOUT_THE_SHELTER, keyboardService.backButtonKeyboard());
+        }
+        if (callbackData.equals(Buttons.M1_SECOND_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.INFO_BUTTON);
+            return createMessage(chatId, BotStatus.ADDRESS_OF_THE_SHELTER, keyboardService.backButtonKeyboard());
+        }
+        if (callbackData.equals(Buttons.M1_THIRD_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.INFO_BUTTON);
+            return createMessage(chatId, BotStatus.SAFETY_PRECAUTIONS, keyboardService.backButtonKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
