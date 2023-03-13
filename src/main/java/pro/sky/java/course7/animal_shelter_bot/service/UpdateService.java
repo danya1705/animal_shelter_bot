@@ -192,7 +192,6 @@ public class UpdateService {
                     return handleBackToMainReportMessage(chatId, callbackData);
                 }
             }
-
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
