@@ -5,6 +5,7 @@ import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustodianService {
@@ -38,6 +39,16 @@ public class CustodianService {
         if (userCustodian != null) {
             return userCustodian.getUserChatId() == chatId;
         } return false;
+    }
+
+    /**
+     * Ищет chatId по userId
+     * @param userId - Идентификатор пользователя в БД
+     * @return Возвращает Optional со значением Телеграм-идентификатора пользователя
+     */
+    public Optional<Long> findChatIdByUserId(Long userId) {
+        return userCustodianRepository.findById(userId)
+                .map(UserCustodian::getUserChatId);
     }
 
 }

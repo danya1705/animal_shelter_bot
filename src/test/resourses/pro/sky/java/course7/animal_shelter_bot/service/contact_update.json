@@ -1,0 +1,13 @@
+{
+  "message": {
+    "chat": {
+      "id": 123
+    },
+    "text": "%command%",
+    "contact": {
+      "first_name": "Ivan",
+      "last_name": "Ivanov",
+      "phone_number": "+79876543210"
+    }
+  }
+}

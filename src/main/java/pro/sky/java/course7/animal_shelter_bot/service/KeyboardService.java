@@ -34,7 +34,20 @@ public class KeyboardService {
                 .callbackData(Buttons.BACK_BUTTON.getCallback());
         return new InlineKeyboardMarkup(buttons);
     }
+    public InlineKeyboardMarkup backButtonKeyboardDog() {
 
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];
+        buttons[0] = new InlineKeyboardButton(Buttons.BACK_BUTTON_DOG.getText())
+                .callbackData(Buttons.BACK_BUTTON_DOG.getCallback());
+        return new InlineKeyboardMarkup(buttons);
+    }
+    public InlineKeyboardMarkup backButtonKeyboardCat() {
+
+        InlineKeyboardButton[] buttons = new InlineKeyboardButton[1];
+        buttons[0] = new InlineKeyboardButton(Buttons.BACK_BUTTON_CAT.getText())
+                .callbackData(Buttons.BACK_BUTTON_CAT.getCallback());
+        return new InlineKeyboardMarkup(buttons);
+    }
 
     public InlineKeyboardMarkup stageNullMenuKeyboard() {
 
@@ -108,12 +121,10 @@ public class KeyboardService {
         buttons[1] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M1_THIRD_BUTTON.getText())
                         .callbackData(Buttons.M1_THIRD_BUTTON.getCallback()),
-                new InlineKeyboardButton(Buttons.M1_FOURTH_BUTTON.getText())
-                        .callbackData(Buttons.M1_FOURTH_BUTTON.getCallback())
+                new InlineKeyboardButton(Buttons.M1_FIFTH_BUTTON.getText())
+                        .callbackData(Buttons.M1_FIFTH_BUTTON.getCallback())
         };
         buttons[2] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M1_FIFTH_BUTTON.getText())
-                        .callbackData(Buttons.M1_FIFTH_BUTTON.getCallback()),
                 new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
                         .callbackData(Buttons.BACK_BUTTON.getCallback())
         };
@@ -124,7 +135,7 @@ public class KeyboardService {
 
     public InlineKeyboardMarkup stageThreeMenuDogKeyboard() {
 
-        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[12][1];
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[11][1];
 
         buttons[0] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_FIRST_DOG_BUTTON.getText())
@@ -163,14 +174,10 @@ public class KeyboardService {
                         .callbackData(Buttons.M2_NINTH_BUTTON.getCallback())
         };
         buttons[9] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_TENTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_TENTH_BUTTON.getCallback())
-        };
-        buttons[10] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_ELEVENTH_BUTTON.getText())
                         .callbackData(Buttons.M2_ELEVENTH_BUTTON.getCallback())
         };
-        buttons[11] = new InlineKeyboardButton[]{
+        buttons[10] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
                         .callbackData(Buttons.BACK_BUTTON.getCallback())
         };
@@ -180,7 +187,7 @@ public class KeyboardService {
 
     public InlineKeyboardMarkup stageThreeMenuCatKeyboard() {
 
-        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[12][1];
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[11][1];
 
         buttons[0] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_FIRST_CAT_BUTTON.getText())
@@ -219,14 +226,10 @@ public class KeyboardService {
                         .callbackData(Buttons.M2_NINTH_BUTTON.getCallback())
         };
         buttons[9] = new InlineKeyboardButton[]{
-                new InlineKeyboardButton(Buttons.M2_TENTH_BUTTON.getText())
-                        .callbackData(Buttons.M2_TENTH_BUTTON.getCallback())
-        };
-        buttons[10] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.M2_ELEVENTH_BUTTON.getText())
                         .callbackData(Buttons.M2_ELEVENTH_BUTTON.getCallback())
         };
-        buttons[11] = new InlineKeyboardButton[]{
+        buttons[10] = new InlineKeyboardButton[]{
                 new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
                         .callbackData(Buttons.BACK_BUTTON.getCallback())
         };
