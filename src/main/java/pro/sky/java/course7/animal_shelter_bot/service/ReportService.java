@@ -79,6 +79,10 @@ public class ReportService {
         return reportRepository.findById(id);
     }
 
+    public void deleteReport(Long id) {
+        reportRepository.deleteById(id);
+    }
+
     public Photo getPhotoById(String fileId) {
         Photo photo = new Photo();
         GetFile getFile = new GetFile(fileId);

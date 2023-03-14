@@ -51,4 +51,11 @@ public class CustodianService {
                 .map(UserCustodian::getUserChatId);
     }
 
+    public Optional<UserCustodian> findExistingUser() {
+        return Optional.ofNullable(userCustodianRepository.findAll().get(0));
+    }
+
+    public void deleteUserCustodian(Long id) {
+        userCustodianRepository.deleteById(id);
+    }
 }
