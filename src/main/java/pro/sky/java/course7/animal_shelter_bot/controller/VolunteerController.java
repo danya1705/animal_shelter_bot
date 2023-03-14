@@ -36,6 +36,17 @@ public class VolunteerController {
         return ResponseEntity.ok(volunteerService.getVolunteerAll());
     }
 
+    @Operation(summary = "Get the whole list of free Volunteers", tags = "Volunteer")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of Volunteers",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Volunteer.class))})
+    })
+    @GetMapping("/all/free")
+    public ResponseEntity<List<Volunteer>> getVolunteerAllFree() {
+        return ResponseEntity.ok(volunteerService.getVolunteerAllFree());
+    }
+
     @Operation(summary = "Create new Volunteer", tags = "Volunteer")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "New Volunteer is created",

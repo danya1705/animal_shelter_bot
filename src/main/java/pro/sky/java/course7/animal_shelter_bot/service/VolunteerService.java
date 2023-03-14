@@ -1,5 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
+import liquibase.pro.packaged.V;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.exception.VolunteerNotFoundException;
 import pro.sky.java.course7.animal_shelter_bot.model.Volunteer;
@@ -7,6 +8,8 @@ import pro.sky.java.course7.animal_shelter_bot.repository.VolunteerRepositiory;
 
 
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class VolunteerService {
@@ -43,5 +46,18 @@ public class VolunteerService {
             throw new VolunteerNotFoundException("Volunteer not found.");
         }
         return volunteerRepositiory.save(volunteer);
+    }
+
+    /**
+     * Получить список свободных волонтеров
+     */
+    public List<Volunteer> getVolunteerAllFree() {
+      return volunteerRepositiory.findVolunteersByAvailableTrue();
+    }
+
+    public Volunteer callVolunteer() {
+        List<Volunteer> volunteers = getVolunteerAllFree();
+        Random random = new Random();
+        return volunteers.get(random.nextInt(volunteers.size()));
     }
 }

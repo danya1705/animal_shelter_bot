@@ -29,6 +29,8 @@ public class UpdateService {
     private static String reportChanges;
     private final KeyboardService keyboardService;
 
+    private final VolunteerService volunteerService;
+
     private final CustodianService custodianService;
     private final ReportCRUDService reportCRUDService;
     /**
@@ -36,10 +38,11 @@ public class UpdateService {
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
 
-    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportCRUDService reportCRUDService) {
+    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportCRUDService reportCRUDService, VolunteerService volunteerService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
         this.reportCRUDService = reportCRUDService;
+        this.volunteerService = volunteerService;
     }
 
     /**
@@ -114,6 +117,12 @@ public class UpdateService {
                 if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
                     return handleSendReportButtonMessage(chatId, callbackData);
+                }
+            }
+            case STAGE_ONE_MENU_VOLUNTEER -> {
+                if (update.callbackQuery() != null){
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageOneMenuVolunteerCallback(chatId, callbackData);
                 }
             }
             case STAGE_SEND_REPORT_MENU_PHOTO -> {
@@ -317,13 +326,34 @@ public class UpdateService {
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
+    /**
+     * Обработка меню: -Позвать волонтера
+     *
+     */
+    private SendMessage handleGetStageOneMenuVolunteerCallback(Long chatId, String callbackData) {
+
+        if (callbackData.equals(Buttons.M11_FIRST_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+        }
+        if (callbackData.equals(Buttons.M11_SECOND_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+        }
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
+
     private SendMessage handleGetStageNullMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M0_FIRST_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
             return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
         }
-
         if (callbackData.equals(Buttons.M0_SECOND_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
@@ -331,6 +361,10 @@ public class UpdateService {
         if (callbackData.equals(Buttons.M0_THIRD_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL, keyboardService.stageNullReportKeyboard());
+        }
+        if (callbackData.equals(Buttons.M0_FOURTH_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
         }
 
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);

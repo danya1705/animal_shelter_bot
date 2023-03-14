@@ -73,6 +73,28 @@ public class KeyboardService {
         return new InlineKeyboardMarkup(buttons);
     }
 
+    /**
+     * Меню кнопок: -Позвать волонтера
+     * @return
+     */
+    public InlineKeyboardMarkup stageOneMenuVolunteerKeyboard() {
+
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[2][1];
+
+        buttons[0] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.M11_FIRST_BUTTON.getText())
+                        .callbackData(Buttons.M11_FIRST_BUTTON.getCallback()),
+                new InlineKeyboardButton(Buttons.M11_SECOND_BUTTON.getText())
+                        .callbackData(Buttons.M11_SECOND_BUTTON.getCallback())
+        };
+        buttons[1] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
+                        .callbackData(Buttons.BACK_BUTTON.getCallback())
+        };
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+
     public InlineKeyboardMarkup stageTwoMenuKeyboard() {
 
         InlineKeyboardButton[][] buttons = new InlineKeyboardButton[3][2];

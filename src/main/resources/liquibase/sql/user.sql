@@ -75,5 +75,7 @@ ALTER TABLE trial_period ADD volunteer_id BIGINT NOT NULL REFERENCES volunteer(i
 ALTER TABLE report ALTER COLUMN foto TYPE TEXT;
 ALTER TABLE report RENAME COLUMN foto TO photo;
 
+--changeset vikhtiiarov:6
+ALTER TABLE user_custodian ADD CONSTRAINT user_chat_id UNIQUE (user_chat_id)
 
 
