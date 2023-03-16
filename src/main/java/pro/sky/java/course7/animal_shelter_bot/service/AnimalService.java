@@ -21,7 +21,7 @@ public class AnimalService {
     }
 
     public Animal getAnimalById(long id) {
-       return animalRepository.findById(id).orElse(null);
+        return animalRepository.findById(id).orElse(null);
     }
 
     public Animal createAnimal(Animal animal) {

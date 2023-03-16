@@ -42,6 +42,22 @@ public class UpdateService {
         this.reportService = reportService;
     }
 
+    public static String getReportPhotoId() {
+        return reportPhotoId;
+    }
+
+    public static String getReportDiet() {
+        return reportDiet;
+    }
+
+    public static String getReportOverall() {
+        return reportOverall;
+    }
+
+    public static String getReportChanges() {
+        return reportChanges;
+    }
+
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
      *
@@ -193,7 +209,6 @@ public class UpdateService {
                 }
             }
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -290,8 +305,7 @@ public class UpdateService {
         if (text != null) {
             reportChanges = text;
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH);
-            UserCustodian custodian = custodianService.userCustodianRepository
-                    .findUserCustodianByUserChatId(chatId);
+            UserCustodian custodian = custodianService.findUserCustodianByChatId(chatId);
             Report report = new Report(LocalDate.now(), reportPhotoId, reportDiet, reportOverall, reportChanges, custodian.getId());
             reportService.createReport(report);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH, keyboardService.backButtonKeyboard());
@@ -426,7 +440,7 @@ public class UpdateService {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
-            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageNullMenuKeyboard());
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
         if (callbackData.equals(Buttons.M1_FIRST_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.INFO_BUTTON);

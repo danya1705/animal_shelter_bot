@@ -6,18 +6,18 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
+import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
+import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,11 +30,15 @@ class UpdateServiceTest {
     @Mock
     private CustodianService custodianService;
     @Mock
+    private ReportService reportService;
+    @Mock
     private KeyboardService keyboardService;
     @InjectMocks
     private UpdateService updateService;
     @Captor
     ArgumentCaptor<UserCustodian> userCaptor;
+    @Captor
+    ArgumentCaptor<Report> reportCaptor;
 
     @Test
     void shouldSaveNewUserInDatabase() throws URISyntaxException, IOException {
@@ -75,451 +79,331 @@ class UpdateServiceTest {
     @Test
     void handleGreetingsMessageTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update update = getUpdate(json, "S1Callback");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-        updateService.editStatusMap(123L, BotStatus.GREETINGS_MESSAGE);
-
-        SendMessage message = updateService.updateHandler(update);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.GREETINGS_MESSAGE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
+        testCallbackHandler("S1Callback", BotStatus.GREETINGS_MESSAGE, BotStatus.GREETINGS_MESSAGE);
     }
 
     @Test
     void handleGetStartButtonCallbackTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update update = getUpdate(json, "S1Callback");
-        Update updateWrong = getUpdate(json, "WrongCallback");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-        updateService.editStatusMap(123L, BotStatus.START_BUTTON);
-
-        SendMessage message = updateService.updateHandler(update);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_NULL_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.START_BUTTON);
-        message = updateService.updateHandler(updateWrong);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+        testCallbackHandler("S1Callback", BotStatus.START_BUTTON, BotStatus.STAGE_NULL_MENU);
+        testCallbackHandler("WrongCallback", BotStatus.START_BUTTON, BotStatus.UNHANDLED_UPDATE);
     }
 
     @Test
     void handleGetStageNullMenuCallbackTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateButtonOne = getUpdate(json, "M0B1Callback");
-        Update updateButtonTwo = getUpdate(json, "M0B2Callback");
-        Update updateButtonThree = getUpdate(json, "M0B3Callback");
-        Update updateButtonWrong = getUpdate(json, "WrongCallback");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_NULL_MENU);
-        SendMessage message = updateService.updateHandler(updateButtonOne);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_TWO_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_NULL_MENU);
-        message = updateService.updateHandler(updateButtonTwo);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_ONE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_NULL_MENU);
-        message = updateService.updateHandler(updateButtonThree);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_SEND_REPORT_MENU_NULL.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_NULL_MENU);
-        message = updateService.updateHandler(updateButtonWrong);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
+        testCallbackHandler("M0B1Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_TWO_MENU);
+        testCallbackHandler("M0B2Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_ONE_MENU);
+        testCallbackHandler("M0B3Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
+        testCallbackHandler("WrongCallback", BotStatus.STAGE_NULL_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
     @Test
     void handleGetStageOneMenuCallbackTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateFirstButton = getUpdate(json, "M05B1Callback");
-        Update updateSecondButton = getUpdate(json, "M05B2Callback");
-        Update updateBackButton = getUpdate(json, "B1Callback");
-        Update updateWrongButton = getUpdate(json, "WrongCallback");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_ONE_MENU);
-        SendMessage message = updateService.updateHandler(updateFirstButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_ONE_MENU);
-        message = updateService.updateHandler(updateSecondButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_ONE_MENU);
-        message = updateService.updateHandler(updateBackButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_NULL_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_ONE_MENU);
-        message = updateService.updateHandler(updateWrongButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
+        testCallbackHandler("M05B1Callback", BotStatus.STAGE_ONE_MENU, BotStatus.STAGE_THREE_MENU);
+        testCallbackHandler("M05B2Callback", BotStatus.STAGE_ONE_MENU, BotStatus.STAGE_THREE_MENU);
+        testCallbackHandler("B1Callback", BotStatus.STAGE_ONE_MENU, BotStatus.STAGE_NULL_MENU);
+        testCallbackHandler("WrongCallback", BotStatus.STAGE_ONE_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
     @Test
     void handleGetStageTwoMenuCallbackTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateBackButton = getUpdate(json, "B1Callback");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-        updateService.editStatusMap(123L, BotStatus.STAGE_TWO_MENU);
-
-        SendMessage message = updateService.updateHandler(updateBackButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_NULL_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
+        testCallbackHandler("B1Callback", BotStatus.STAGE_TWO_MENU, BotStatus.STAGE_NULL_MENU);
+        testCallbackHandler("M1B1Callback", BotStatus.STAGE_TWO_MENU, BotStatus.INFORMATION_ABOUT_THE_SHELTER);
+        testCallbackHandler("M1B2Callback", BotStatus.STAGE_TWO_MENU, BotStatus.ADDRESS_OF_THE_SHELTER);
+        testCallbackHandler("M1B3Callback", BotStatus.STAGE_TWO_MENU, BotStatus.SAFETY_PRECAUTIONS);
+        testCallbackHandler("WrongCallback", BotStatus.STAGE_TWO_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
     @Test
     void handleGetStageThreeMenuCallbacktest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateBackButton = getUpdate(json, "B1Callback");
-        Update updateFirstDogButton = getUpdate(json, "M2B1CallbackDog");
-        Update updateFirstCatButton = getUpdate(json, "M2B1CallbackCat");
-        Update updateSecondButton = getUpdate(json, "M2B1Callback");
-        Update updateThirdButton = getUpdate(json, "M2B13Callback");
-        Update updateFourthDogButton = getUpdate(json, "M2B14Callback");
-        Update updateFourthCatButton = getUpdate(json, "M2B15Callback");
-        Update updateFifthDogButton = getUpdate(json, "M2B16Callback");
-        Update updateFifthCatButton = getUpdate(json, "M2B17Callback");
-        Update updateSixthDogButton = getUpdate(json, "M2B18Callback");
-        Update updateSixthCatButton = getUpdate(json, "M2B19Callback");
-        Update updateSeventhDogButton = getUpdate(json, "M2B20Callback");
-        Update updateSeventhCatButton = getUpdate(json, "M2B21Callback");
-        Update updateEighthDogButton = getUpdate(json, "M2B22Callback");
-        Update updateEighthCatButton = getUpdate(json, "M2B23Callback");
-        Update updateNinthButton = getUpdate(json, "M2B24Callback");
-        Update updateWrongButton = getUpdate(json, "WrongCallback");
+        testCallbackHandler("B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.STAGE_ONE_MENU);
+        testCallbackHandler("M2B1CallbackDog", BotStatus.STAGE_THREE_MENU, BotStatus.GETTING_TO_KNOW_A_DOG);
+        testCallbackHandler("M2B1CallbackCat", BotStatus.STAGE_THREE_MENU, BotStatus.GETTING_TO_KNOW_A_CAT);
+        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, "Dog");
+        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, "Cat");
+        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, "Dog");
+        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, "Cat");
+        testCallbackHandler("M2B14Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_A_PUPPY);
+        testCallbackHandler("M2B15Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_A_KITTEN);
+        testCallbackHandler("M2B16Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_DOG);
+        testCallbackHandler("M2B17Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_CAT);
+        testCallbackHandler("M2B18Callback", BotStatus.STAGE_THREE_MENU, BotStatus.CARING_FOR_A_DOG_WITH_DISABILITIES);
+        testCallbackHandler("M2B19Callback", BotStatus.STAGE_THREE_MENU, BotStatus.CARING_FOR_A_CAT_WITH_DISABILITIES);
+        testCallbackHandler("M2B20Callback", BotStatus.STAGE_THREE_MENU, BotStatus.TIPS_FROM_A_DOG_HANDLER);
+        testCallbackHandler("M2B21Callback", BotStatus.STAGE_THREE_MENU, BotStatus.FELINOLOGIST_ADVICE);
+        testCallbackHandler("M2B22Callback", BotStatus.STAGE_THREE_MENU, BotStatus.PROVEN_DOG_HANDLERS);
+        testCallbackHandler("M2B23Callback", BotStatus.STAGE_THREE_MENU, BotStatus.PROVEN_FELINOLOGISTS);
+        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, "Dog");
+        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, "Cat");
+        testCallbackHandler("WrongCallback", BotStatus.STAGE_THREE_MENU, BotStatus.UNHANDLED_UPDATE);
+    }
 
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        SendMessage message = updateService.updateHandler(updateBackButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_ONE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFirstDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.GETTING_TO_KNOW_A_DOG.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFirstCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.GETTING_TO_KNOW_A_CAT.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Dog");
-        message = updateService.updateHandler(updateSecondButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.REQUIRED_DOCUMENTS.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Cat");
-        message = updateService.updateHandler(updateSecondButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.REQUIRED_DOCUMENTS.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Dog");
-        message = updateService.updateHandler(updateThirdButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.ANIMAL_TRANSPORTATION.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Cat");
-        message = updateService.updateHandler(updateThirdButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.ANIMAL_TRANSPORTATION.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFourthDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.HOME_IMPROVEMENT_FOR_A_PUPPY.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFourthCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.HOME_IMPROVEMENT_FOR_A_KITTEN.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFifthDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_DOG.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateFifthCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_CAT.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateSixthDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.CARING_FOR_A_DOG_WITH_DISABILITIES.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateSixthCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.CARING_FOR_A_CAT_WITH_DISABILITIES.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateSeventhDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.TIPS_FROM_A_DOG_HANDLER.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateSeventhCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.FELINOLOGIST_ADVICE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateEighthDogButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.PROVEN_DOG_HANDLERS.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateEighthCatButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.PROVEN_FELINOLOGISTS.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Dog");
-        message = updateService.updateHandler(updateNinthButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.REASONS_FOR_REFUSAL.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        updateService.editStatusMenu(123L, "Cat");
-        message = updateService.updateHandler(updateNinthButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.REASONS_FOR_REFUSAL.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.STAGE_THREE_MENU);
-        message = updateService.updateHandler(updateWrongButton);
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+    @Test
+    void handleBackInfoShelterTest() throws URISyntaxException, IOException {
+        testCallbackHandler("B1Callback", BotStatus.INFO_BUTTON, BotStatus.STAGE_TWO_MENU);
+        testCallbackHandler("WrongCallback", BotStatus.INFO_BUTTON, BotStatus.UNHANDLED_UPDATE);
     }
 
     @Test
     void handleBackTheCatInfoTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateBackButton = getUpdate(json, "B1CallbackCat");
-
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-        updateService.editStatusMap(123L, BotStatus.CAT_BUTTON);
-        Update updateWrongButton = getUpdate(json, "WrongCallback");
-
-
-        SendMessage message = updateService.updateHandler(updateBackButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.COMMON_BUTTON);
-        updateService.editStatusMenu(123L, "Cat");
-
-        message = updateService.updateHandler(updateBackButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
-
-        updateService.editStatusMap(123L, BotStatus.COMMON_BUTTON);
-        updateService.editStatusMenu(123L, "Cat");
-
-        message = updateService.updateHandler(updateWrongButton);
-
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+        testCallbackHandler("B1CallbackCat", BotStatus.CAT_BUTTON, BotStatus.STAGE_THREE_MENU);
+        testCallbackHandler("B1CallbackCat", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, "Cat");
+        testCallbackHandler("WrongCallback", BotStatus.CAT_BUTTON, BotStatus.UNHANDLED_UPDATE);
+        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, "Cat");
     }
 
     @Test
     void handleBackTheDogInfoTest() throws URISyntaxException, IOException {
 
-        String json = Files.readString(
-                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
-        Update updateBackButton = getUpdate(json, "B1CallbackDog");
-        Update updateWrongButton = getUpdate(json, "WrongCallback");
+        testCallbackHandler("B1CallbackDog", BotStatus.DOG_BUTTON, BotStatus.STAGE_THREE_MENU);
+        testCallbackHandler("B1CallbackDog", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, "Dog");
+        testCallbackHandler("WrongCallback", BotStatus.DOG_BUTTON, BotStatus.UNHANDLED_UPDATE);
+        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, "Dog");
+    }
 
-        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-        updateService.editStatusMap(123L, BotStatus.DOG_BUTTON);
+    @Test
+    void handleBackToMainReportMessageTest() throws URISyntaxException, IOException {
 
-        SendMessage message = updateService.updateHandler(updateBackButton);
+        testCallbackHandler("B1Callback", BotStatus.STAGE_SEND_REPORT_MENU_FINISH, BotStatus.STAGE_NULL_MENU);
+        testCallbackHandler("WrongCallback", BotStatus.STAGE_SEND_REPORT_MENU_FINISH, BotStatus.UNHANDLED_UPDATE);
+    }
 
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+//    @Test
+//    void handleChangesReportMessageTest() throws URISyntaxException, IOException {
+//
+//        String json = Files.readString(
+//                Paths.get(UpdateServiceTest.class.getResource("text_update.json").toURI()));
+//        Update updateText = getUpdate(json, "some text");
+//        Update updateNullText = getUpdate(json, "");
+//
+//        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+//
+//        UserCustodian userCustodian = new UserCustodian();
+//        userCustodian.setId(1234L);
+//        when(userCustodianRepository.findUserCustodianByUserChatId(any(Long.class)))
+//                .thenReturn(userCustodian);
+//
+//        Report report = new Report();
+//        report.setReportDate(LocalDate.now());
+//        report.setUserId(1234L);
+//
+//        verify(reportService).createReport(reportCaptor.capture());
+//        Report savedReport = reportCaptor.getValue();
+//
+//        updateService.editStatusMap(123L, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
+//        SendMessage message = updateService.updateHandler(updateText);
+//        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+//        assertThat(message.getParameters().get("text")).isEqualTo(
+//                BotStatus.STAGE_SEND_REPORT_MENU_FINISH.getMessageText());
+//        assertThat(message.getParameters().get("parse_mode"))
+//                .isEqualTo(ParseMode.HTML.name());
+//        assertThat(savedReport.getReportDate()).isEqualTo(LocalDate.now());
+//        assertThat(savedReport.getUserId()).isEqualTo(1234L);
+//
+//        updateService.editStatusMap(123L, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
+//        message = updateService.updateHandler(updateNullText);
+//        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+//        assertThat(message.getParameters().get("text")).isEqualTo(
+//                "Отправить нужно только текстовое описание об изменениях в поведении питомца!");
+//        assertThat(message.getParameters().get("parse_mode"))
+//                .isEqualTo(ParseMode.HTML.name());
+//    }
 
-        updateService.editStatusMap(123L, BotStatus.COMMON_BUTTON);
-        updateService.editStatusMenu(123L, "Dog");
+    @Test
+    void handleChangesReportMessageButtonTest() throws URISyntaxException, IOException {
 
-        message = updateService.updateHandler(updateBackButton);
+        testCallbackHandler("RSABCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE,
+                BotStatus.STAGE_NULL_MENU);
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE,
+                BotStatus.UNHANDLED_UPDATE);
+    }
 
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.STAGE_THREE_MENU.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+    @Test
+    void handleOverallReportMessageTest() throws URISyntaxException, IOException {
 
-        updateService.editStatusMap(123L, BotStatus.COMMON_BUTTON);
-        updateService.editStatusMenu(123L, "Dog");
+        String text = "some text";
 
-        message = updateService.updateHandler(updateWrongButton);
+        testMessageHandler(text,
+                BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
+                BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE.getMessageText());
+        assertThat(updateService.getReportOverall()).isEqualTo(text);
+    }
 
-        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-        assertThat(message.getParameters().get("text")).isEqualTo(
-                BotStatus.UNHANDLED_UPDATE.getMessageText());
-        assertThat(message.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.HTML.name());
+    @Test
+    void handleOverallReportMessageButtonTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("RSABCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("RSСBCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
+                BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
+    void handleDietReportMessageTest() throws URISyntaxException, IOException {
+
+        String text = "some text";
+
+        testMessageHandler(text,
+                BotStatus.STAGE_SEND_REPORT_MENU_DIET,
+                BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS.getMessageText());
+        assertThat(updateService.getReportDiet()).isEqualTo(text);
+    }
+
+    @Test
+    void handleDietReportMessageButtonTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("RSABCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_DIET,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_DIET,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
+    void handlePhotoReportMessageTest() throws URISyntaxException, IOException {
+
+        testPhotoHandler(BotStatus.STAGE_SEND_REPORT_MENU_PHOTO, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
+        assertThat(updateService.getReportPhotoId()).isEqualTo("123456789");
+
+        testMessageHandler("some text",
+                BotStatus.STAGE_SEND_REPORT_MENU_PHOTO,
+                "Отправить нужно только фотографию!");
+    }
+
+    @Test
+    void handlePhotoButtonReportMessageTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("RSABCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_PHOTO,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("RSСBCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_PHOTO,
+                BotStatus.STAGE_SEND_REPORT_MENU_DIET);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_PHOTO,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
+    void handleSendReportButtonMessageTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("RSBCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_NULL,
+                BotStatus.STAGE_SEND_REPORT_MENU_PHOTO);
+
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_SEND_REPORT_MENU_NULL,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_NULL,
+                BotStatus.UNHANDLED_UPDATE);
     }
 
     private Update getUpdate(String json, String replaced) {
         return BotUtils.fromJson(json.replace("%command%", replaced), Update.class);
+    }
+
+    private Update getUpdate(String json) {
+        return BotUtils.fromJson(json, Update.class);
+    }
+
+    private void testCallbackHandler(String callbackText,
+                                     BotStatus botStatusIn,
+                                     BotStatus botStatusOut) throws URISyntaxException, IOException {
+
+        String json = Files.readString(
+                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
+        Update update = getUpdate(json, callbackText);
+
+        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+        updateService.editStatusMap(123L, botStatusIn);
+
+        SendMessage message = updateService.updateHandler(update);
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(
+                botStatusOut.getMessageText());
+        assertThat(message.getParameters().get("parse_mode"))
+                .isEqualTo(ParseMode.HTML.name());
+    }
+
+    private void testCallbackHandler(String callbackText,
+                                     BotStatus botStatusIn,
+                                     BotStatus botStatusOut,
+                                     String animal) throws URISyntaxException, IOException {
+
+        String json = Files.readString(
+                Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
+        Update update = getUpdate(json, callbackText);
+
+        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+        updateService.editStatusMap(123L, botStatusIn);
+        updateService.editStatusMenu(123L, animal);
+
+        SendMessage message = updateService.updateHandler(update);
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(
+                botStatusOut.getMessageText());
+        assertThat(message.getParameters().get("parse_mode"))
+                .isEqualTo(ParseMode.HTML.name());
+    }
+
+    private void testMessageHandler(String text,
+                                    BotStatus botStatusIn,
+                                    String textOut) throws URISyntaxException, IOException {
+
+        Update update = new Update();
+        if (text != null) {
+            String json = Files.readString(
+                    Paths.get(UpdateServiceTest.class.getResource("text_update.json").toURI()));
+            update = getUpdate(json, text);
+        } else {
+            String json = Files.readString(
+                    Paths.get(UpdateServiceTest.class.getResource("null_text_update.json").toURI()));
+            update = getUpdate(json);
+        }
+
+        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+        updateService.editStatusMap(123L, botStatusIn);
+
+        SendMessage message = updateService.updateHandler(update);
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(textOut);
+        assertThat(message.getParameters().get("parse_mode")).isEqualTo(ParseMode.HTML.name());
+    }
+
+    private void testPhotoHandler(BotStatus botStatusIn, BotStatus botStatusOut) throws URISyntaxException, IOException {
+
+        String json = Files.readString(
+                Paths.get(UpdateServiceTest.class.getResource("photo_update.json").toURI()));
+        Update update = getUpdate(json);
+
+        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+        updateService.editStatusMap(123L, botStatusIn);
+
+        SendMessage message = updateService.updateHandler(update);
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(
+                botStatusOut.getMessageText());
+        assertThat(message.getParameters().get("parse_mode"))
+                .isEqualTo(ParseMode.HTML.name());
     }
 }
