@@ -38,12 +38,16 @@ public class UpdateService {
         this.reportService = reportService;
     }
 
+    public Map<Long, Report> getReportMap() {
+        return reportMap;
+    }
+
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
      *
      * @param update не должен быть null
      * @return ответное сообщение для отправки в Телеграм-бот
-     */
+     **/
     public SendMessage updateHandler(Update update) {
 
         Long chatId;
@@ -204,6 +208,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handlePhotoButtonReportMessage(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -216,6 +221,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handlePhotoReportMessage(Long chatId, PhotoSize[] photo) {
         if (photo != null) {
             String reportPhotoId = photo[photo.length - 1].fileId();
@@ -230,6 +236,7 @@ public class UpdateService {
             return createMessage(chatId, "Отправить нужно только фотографию!", keyboardService.stageAbortReportKeyboard());
         }
     }
+
     public SendMessage handleDietReportMessageButton(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.REPORT_SEND_ABORT_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -326,6 +333,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handleBackInfoShelter(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
@@ -530,6 +538,10 @@ public class UpdateService {
 
     public void editStatusMenu(Long chatId, String str) {
         statusMenu.put(chatId, str);
+    }
+
+    public void editReportMap(Long chatId, Report report) {
+        reportMap.put(chatId, report);
     }
 
 }

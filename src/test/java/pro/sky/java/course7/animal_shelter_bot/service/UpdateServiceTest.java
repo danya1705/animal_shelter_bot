@@ -11,13 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
-import pro.sky.java.course7.animal_shelter_bot.repository.UserCustodianRepository;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,8 +35,6 @@ class UpdateServiceTest {
     private UpdateService updateService;
     @Captor
     ArgumentCaptor<UserCustodian> userCaptor;
-    @Captor
-    ArgumentCaptor<Report> reportCaptor;
 
     @Test
     void shouldSaveNewUserInDatabase() throws URISyntaxException, IOException {
@@ -173,46 +169,27 @@ class UpdateServiceTest {
         testCallbackHandler("WrongCallback", BotStatus.STAGE_SEND_REPORT_MENU_FINISH, BotStatus.UNHANDLED_UPDATE);
     }
 
-//    @Test
-//    void handleChangesReportMessageTest() throws URISyntaxException, IOException {
-//
-//        String json = Files.readString(
-//                Paths.get(UpdateServiceTest.class.getResource("text_update.json").toURI()));
-//        Update updateText = getUpdate(json, "some text");
-//        Update updateNullText = getUpdate(json, "");
-//
-//        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
-//
-//        UserCustodian userCustodian = new UserCustodian();
-//        userCustodian.setId(1234L);
-//        when(userCustodianRepository.findUserCustodianByUserChatId(any(Long.class)))
-//                .thenReturn(userCustodian);
-//
-//        Report report = new Report();
-//        report.setReportDate(LocalDate.now());
-//        report.setUserId(1234L);
-//
-//        verify(reportService).createReport(reportCaptor.capture());
-//        Report savedReport = reportCaptor.getValue();
-//
-//        updateService.editStatusMap(123L, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
-//        SendMessage message = updateService.updateHandler(updateText);
-//        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-//        assertThat(message.getParameters().get("text")).isEqualTo(
-//                BotStatus.STAGE_SEND_REPORT_MENU_FINISH.getMessageText());
-//        assertThat(message.getParameters().get("parse_mode"))
-//                .isEqualTo(ParseMode.HTML.name());
-//        assertThat(savedReport.getReportDate()).isEqualTo(LocalDate.now());
-//        assertThat(savedReport.getUserId()).isEqualTo(1234L);
-//
-//        updateService.editStatusMap(123L, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
-//        message = updateService.updateHandler(updateNullText);
-//        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
-//        assertThat(message.getParameters().get("text")).isEqualTo(
-//                "Отправить нужно только текстовое описание об изменениях в поведении питомца!");
-//        assertThat(message.getParameters().get("parse_mode"))
-//                .isEqualTo(ParseMode.HTML.name());
-//    }
+    @Test
+    void handleChangesReportMessageTest() throws URISyntaxException, IOException {
+
+        String text = "some text";
+
+        Report report = new Report();
+        updateService.editReportMap(123L, report);
+
+        UserCustodian userCustodian = new UserCustodian();
+        userCustodian.setId(1234L);
+
+        when(custodianService.findUserCustodianByChatId(any(Long.class))).thenReturn(userCustodian);
+
+        testMessageHandler(text,
+                BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE,
+                BotStatus.STAGE_SEND_REPORT_MENU_FINISH.getMessageText());
+        assertThat(updateService.getReportMap().get(123L).getWellbeing()).isEqualTo(text);
+
+        testMessageHandler(BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE,
+                "Отправить нужно только текстовое описание об изменениях в поведении питомца!");
+    }
 
     @Test
     void handleChangesReportMessageButtonTest() throws URISyntaxException, IOException {
@@ -230,10 +207,16 @@ class UpdateServiceTest {
 
         String text = "some text";
 
+        Report report = new Report();
+        updateService.editReportMap(123L, report);
+
         testMessageHandler(text,
                 BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
                 BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE.getMessageText());
-        assertThat(updateService.getReportOverall()).isEqualTo(text);
+        assertThat(updateService.getReportMap().get(123L).getBehaviour()).isEqualTo(text);
+
+        testMessageHandler(BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS,
+                "Отправить нужно только текстовое описание самочувствия питомца!");
     }
 
     @Test
@@ -257,10 +240,16 @@ class UpdateServiceTest {
 
         String text = "some text";
 
+        Report report = new Report();
+        updateService.editReportMap(123L, report);
+
         testMessageHandler(text,
                 BotStatus.STAGE_SEND_REPORT_MENU_DIET,
                 BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS.getMessageText());
-        assertThat(updateService.getReportDiet()).isEqualTo(text);
+        assertThat(updateService.getReportMap().get(123L).getDiet()).isEqualTo(text);
+
+        testMessageHandler(BotStatus.STAGE_SEND_REPORT_MENU_DIET,
+                "Отправить нужно только текстовое описание меню питомца!");
     }
 
     @Test
@@ -279,7 +268,7 @@ class UpdateServiceTest {
     void handlePhotoReportMessageTest() throws URISyntaxException, IOException {
 
         testPhotoHandler(BotStatus.STAGE_SEND_REPORT_MENU_PHOTO, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
-        assertThat(updateService.getReportPhotoId()).isEqualTo("123456789");
+        assertThat(updateService.getReportMap().get(123L).getPhoto()).isEqualTo("123456789");
 
         testMessageHandler("some text",
                 BotStatus.STAGE_SEND_REPORT_MENU_PHOTO,
@@ -370,16 +359,25 @@ class UpdateServiceTest {
                                     BotStatus botStatusIn,
                                     String textOut) throws URISyntaxException, IOException {
 
-        Update update = new Update();
-        if (text != null) {
-            String json = Files.readString(
-                    Paths.get(UpdateServiceTest.class.getResource("text_update.json").toURI()));
-            update = getUpdate(json, text);
-        } else {
-            String json = Files.readString(
-                    Paths.get(UpdateServiceTest.class.getResource("null_text_update.json").toURI()));
-            update = getUpdate(json);
-        }
+        String json = Files.readString(
+                Paths.get(UpdateServiceTest.class.getResource("text_update.json").toURI()));
+        Update update = getUpdate(json, text);
+
+        when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
+        updateService.editStatusMap(123L, botStatusIn);
+
+        SendMessage message = updateService.updateHandler(update);
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(textOut);
+        assertThat(message.getParameters().get("parse_mode")).isEqualTo(ParseMode.HTML.name());
+    }
+
+    private void testMessageHandler(BotStatus botStatusIn,
+                                    String textOut) throws URISyntaxException, IOException {
+
+        String json = Files.readString(
+                Paths.get(UpdateServiceTest.class.getResource("null_text_update.json").toURI()));
+        Update update = getUpdate(json);
 
         when(custodianService.findUserByChatId(any(Long.class))).thenReturn(true);
         updateService.editStatusMap(123L, botStatusIn);
