@@ -108,6 +108,18 @@ public class KeyboardService {
         return new InlineKeyboardMarkup(buttons);
     }
 
+    public InlineKeyboardMarkup stageTwoMenuVolunteerKeyboard() {
+
+        InlineKeyboardButton[][] buttons = new InlineKeyboardButton[1][1];
+
+        buttons[0] = new InlineKeyboardButton[]{
+                new InlineKeyboardButton(Buttons.BACK_BUTTON.getText())
+                        .callbackData(Buttons.BACK_BUTTON.getCallback())
+        };
+
+        return new InlineKeyboardMarkup(buttons);
+    }
+
     public InlineKeyboardMarkup stageTwoMenuKeyboard() {
 
         InlineKeyboardButton[][] buttons = new InlineKeyboardButton[3][2];

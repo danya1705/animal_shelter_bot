@@ -153,6 +153,11 @@ public class UpdateService {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageOneMenuVolunteerCallback(chatId, callbackData);
                 }
+            }case STAGE_SEND_REPORT_MENU_VOLUNTEER -> {
+                if (update.callbackQuery() != null){
+                    String callbackData = update.callbackQuery().data();
+                    return handleGetStageTwoMenuVolunteerCallback(chatId, callbackData);
+                }
             }
             case STAGE_SEND_REPORT_MENU_PHOTO -> {
                 if (update.callbackQuery() != null) {
@@ -488,12 +493,21 @@ public class UpdateService {
 
         if (callbackData.equals(Buttons.M11_FIRST_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER, keyboardService.stageTwoMenuVolunteerKeyboard());
         }
         if (callbackData.equals(Buttons.M11_SECOND_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER, keyboardService.stageTwoMenuVolunteerKeyboard());
         }
+        if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+        }
+
+        return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+
+    }private SendMessage handleGetStageTwoMenuVolunteerCallback(Long chatId, String callbackData) {
+
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
