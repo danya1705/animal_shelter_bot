@@ -1,7 +1,12 @@
 package pro.sky.java.course7.animal_shelter_bot.controller;
 
+import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendMessage;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
+import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.repository.*;
 import pro.sky.java.course7.animal_shelter_bot.service.*;
 
@@ -21,10 +27,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
@@ -56,6 +62,8 @@ class ReportControllerTest {
     private VolunteerService volunteerService;
     @InjectMocks
     private ReportController reportController;
+    @Captor
+    ArgumentCaptor<SendMessage> messageCaptor;
 
     @Test
     void getReportsTest() throws Exception {
@@ -164,22 +172,33 @@ class ReportControllerTest {
 
     }
 
-//    @Test
-//    void getPhotoTest() throws Exception {
-//
-//        Long correctId = 123L;
-//        Long wrongId = 321L;
-//        String photoPath = "AgACAgIAAxkBAANyZAyXT2VvvuCKW-r_Fg2lv2Rz7KgAAkvHMRsMc2hIDd31jeSuWZoBAAMCAAN4AAMvBA";
-//
-//        Report report = new Report();
-//        report.setId(correctId);
-//        report.setPhoto(photoPath);
-//
-//        when(reportRepository.findById(eq(correctId))).thenReturn(Optional.of(report));
-//
-//        mockMvc.perform(MockMvcRequestBuilders
-//                        .get("/reports/photo/{id}", correctId))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.IMAGE_JPEG));
-//    }
+    @Test
+    void sendMessageTest() throws Exception {
+
+        Long id = 1234L;
+        Long chatId = 123L;
+        String text = "Пора заполнять отчёты! Иначе вы будете жестоко наказаны!";
+
+        UserCustodian userCustodian = new UserCustodian();
+        userCustodian.setId(id);
+        userCustodian.setUserChatId(chatId);
+
+        when(userCustodianRepository.findById(any(Long.class))).thenReturn(Optional.of(userCustodian));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/reports/{user-id}",1234L)
+                        .content(text))
+                .andExpect(status().isOk());
+
+        verify(telegramBot).execute(messageCaptor.capture());
+        SendMessage message = messageCaptor.getValue();
+
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(123L);
+        assertThat(message.getParameters().get("text")).isEqualTo(text);
+
+    }
+
+    private Update getUpdate(String json, String replaced) {
+        return BotUtils.fromJson(json.replace("%command%", replaced), Update.class);
+    }
 }

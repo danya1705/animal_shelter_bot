@@ -14,7 +14,6 @@ import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,10 +22,6 @@ import java.util.Map;
  */
 @Service
 public class UpdateService {
-    private static String reportPhotoId;
-    private static String reportDiet;
-    private static String reportOverall;
-    private static String reportChanges;
     private final KeyboardService keyboardService;
     private final VolunteerService volunteerService;
     private final CustodianService custodianService;
@@ -36,6 +31,7 @@ public class UpdateService {
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
     private final Map<Long, String> statusMenu = new HashMap<>();
+    private final Map<Long, Report> reportMap = new HashMap<>();
 
     public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService, VolunteerService volunteerService) {
         this.keyboardService = keyboardService;
@@ -44,12 +40,16 @@ public class UpdateService {
         this.volunteerService = volunteerService;
     }
 
+    public Map<Long, Report> getReportMap() {
+        return reportMap;
+    }
+
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
      *
      * @param update не должен быть null
      * @return ответное сообщение для отправки в Телеграм-бот
-     */
+     **/
     public SendMessage updateHandler(Update update) {
 
         Long chatId;
@@ -169,7 +169,7 @@ public class UpdateService {
                     String callbackData = update.callbackQuery().data();
                     return handleDietReportMessageButton(chatId, callbackData);
                 }
-                if (update.message().text() != null) {
+                if (update.message() != null) {
                     String text = update.message().text();
                     return handleDietReportMessage(chatId, text);
                 }
@@ -179,7 +179,7 @@ public class UpdateService {
                     String callbackData = update.callbackQuery().data();
                     return handleOverallReportMessageButton(chatId, callbackData);
                 }
-                if (update.message().text() != null) {
+                if (update.message() != null) {
                     String text = update.message().text();
                     return handleOverallReportMessage(chatId, text);
                 }
@@ -189,7 +189,7 @@ public class UpdateService {
                     String callbackData = update.callbackQuery().data();
                     return handleChangesReportMessageButton(chatId, callbackData);
                 }
-                if (update.message().text() != null) {
+                if (update.message() != null) {
                     String text = update.message().text();
                     return handleChangesReportMessage(chatId, text);
                 }
@@ -201,7 +201,6 @@ public class UpdateService {
                 }
             }
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -233,10 +232,12 @@ public class UpdateService {
 
     public SendMessage handlePhotoReportMessage(Long chatId, PhotoSize[] photo) {
         if (photo != null) {
-            int size = photo.length;
-            reportPhotoId = photo[size - 1].fileId();
-            System.out.println(Arrays.toString(photo));
-            System.out.println(reportPhotoId);
+            String reportPhotoId = photo[photo.length - 1].fileId();
+
+            Report report = new Report();
+            report.setPhoto(reportPhotoId);
+            reportMap.put(chatId, report);
+
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_DIET, keyboardService.stageAbortReportKeyboard());
         } else {
@@ -255,7 +256,7 @@ public class UpdateService {
 
     public SendMessage handleDietReportMessage(Long chatId, String text) {
         if (text != null) {
-            reportDiet = text;
+            reportMap.get(chatId).setDiet(text);
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_OVERALL_FEELINGS, keyboardService.stageAbortReportKeyboard());
         } else {
@@ -279,7 +280,7 @@ public class UpdateService {
 
     public SendMessage handleOverallReportMessage(Long chatId, String text) {
         if (text != null) {
-            reportOverall = text;
+            reportMap.get(chatId).setBehaviour(text);
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_CHANGES_IN_PET_LIFE, keyboardService.stageAbortReportKeyboard());
         } else {
@@ -299,12 +300,14 @@ public class UpdateService {
 
     public SendMessage handleChangesReportMessage(Long chatId, String text) {
         if (text != null) {
-            reportChanges = text;
+            UserCustodian custodian = custodianService.findUserCustodianByChatId(chatId);
+            reportMap.get(chatId).setWellbeing(text);
+            reportMap.get(chatId).setReportDate(LocalDate.now());
+            reportMap.get(chatId).setUserId(custodian.getId());
+
             statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH);
-            UserCustodian custodian = custodianService.userCustodianRepository
-                    .findUserCustodianByUserChatId(chatId);
-            Report report = new Report(LocalDate.now(), reportPhotoId, reportDiet, reportOverall, reportChanges, custodian.getId());
-            reportService.createReport(report);
+
+            reportService.createReport(reportMap.get(chatId));
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_FINISH, keyboardService.backButtonKeyboard());
         } else {
             return createMessage(chatId, "Отправить нужно только текстовое описание об изменениях в поведении питомца!"
@@ -338,6 +341,7 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     public SendMessage handleBackInfoShelter(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
@@ -438,7 +442,7 @@ public class UpdateService {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
-            return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageNullMenuKeyboard());
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
         if (callbackData.equals(Buttons.M1_FIRST_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.INFO_BUTTON);
@@ -569,6 +573,10 @@ public class UpdateService {
 
     public void editStatusMenu(Long chatId, String str) {
         statusMenu.put(chatId, str);
+    }
+
+    public void editReportMap(Long chatId, Report report) {
+        reportMap.put(chatId, report);
     }
 
 }

@@ -42,6 +42,15 @@ public class CustodianService {
     }
 
     /**
+     * Получение ID пользователя в базе по Telegram ID
+     * @param chatId - Telegram ID пользоваеля
+     * @return Long
+     */
+    public UserCustodian findUserCustodianByChatId(Long chatId) {
+        return userCustodianRepository.findUserCustodianByUserChatId(chatId);
+    }
+
+    /**
      * Ищет chatId по userId
      * @param userId - Идентификатор пользователя в БД
      * @return Возвращает Optional со значением Телеграм-идентификатора пользователя
@@ -51,4 +60,11 @@ public class CustodianService {
                 .map(UserCustodian::getUserChatId);
     }
 
+    public Optional<UserCustodian> findExistingUser() {
+        return Optional.ofNullable(userCustodianRepository.findAll().get(0));
+    }
+
+    public void deleteUserCustodian(Long id) {
+        userCustodianRepository.deleteById(id);
+    }
 }
