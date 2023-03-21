@@ -74,7 +74,7 @@ class VolunteerControllerTest {
                 .thenReturn(List.of(firstVolunteer, secondVolunteer, thirdVolunteer));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/volunteer/all"))
+                        .get("/volunteers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id").value(firstId))
@@ -106,7 +106,7 @@ class VolunteerControllerTest {
                 .thenReturn(volunteer);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/volunteer/add")
+                        .post("/volunteers")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -129,12 +129,12 @@ class VolunteerControllerTest {
         when(volunteerRepositiory.findById(eq(wrongId))).thenReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/volunteer/delete/{id}", id))
+                        .delete("/volunteers/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/volunteer/delete/{id}", wrongId))
+                        .delete("/volunteers/{id}", wrongId))
                 .andExpect(status().isNotFound());
 
     }

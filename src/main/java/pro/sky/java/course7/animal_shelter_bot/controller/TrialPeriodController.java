@@ -16,6 +16,7 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
+@RequestMapping("/trial-periods")
 public class TrialPeriodController {
     private final TrialPeriodService trialPeriodService;
 
@@ -29,7 +30,7 @@ public class TrialPeriodController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
-    @GetMapping("/getAll")
+    @GetMapping("")
     public ResponseEntity<List<TrialPeriod>> getTrialPeriodList() {
         List<TrialPeriod> foundStudent = trialPeriodService.findAll();
         if (foundStudent == null) {
@@ -45,7 +46,7 @@ public class TrialPeriodController {
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
 
-    @PostMapping("/new")
+    @PostMapping("")
     public ResponseEntity<TrialPeriod> createTrialPeriod(@Parameter(description = "Period to be created")
                                                          @RequestBody TrialPeriod period) {
         return ok(trialPeriodService.createPeriod(period));
@@ -60,7 +61,7 @@ public class TrialPeriodController {
                             content = {@Content(mediaType = "application/json",
                                     schema = @Schema(implementation = TrialPeriod.class))})
             })
-    @PutMapping("/new")
+    @PutMapping("")
     public ResponseEntity<TrialPeriod> updateTrialPeriod(@Parameter(description = "Period to be updated")
                                                          @RequestBody TrialPeriod period) {
         TrialPeriod findTrialPeriod = trialPeriodService.editTrialPeriod(period);
@@ -76,12 +77,10 @@ public class TrialPeriodController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<TrialPeriod> closureTrialPeriod(@PathVariable Long id) {
-        TrialPeriod findTrialPeriod = trialPeriodService.deletePeriod(id);
-        if (findTrialPeriod == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(findTrialPeriod);
+        return trialPeriodService.deletePeriod(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

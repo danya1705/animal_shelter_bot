@@ -54,6 +54,14 @@ class UpdateServiceTest {
     }
 
     @Test
+    void shouldReturnUnhandledUpdateWhenUndefinedStatus() throws URISyntaxException, IOException {
+
+        testCallbackHandler("Any text",
+                BotStatus.UNHANDLED_UPDATE,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
     void handleUnregisteredUserTest() throws URISyntaxException, IOException {
 
         String json = Files.readString(
@@ -91,6 +99,7 @@ class UpdateServiceTest {
         testCallbackHandler("M0B1Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_TWO_MENU);
         testCallbackHandler("M0B2Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_ONE_MENU);
         testCallbackHandler("M0B3Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
+        testCallbackHandler("M0B4Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
         testCallbackHandler("WrongCallback", BotStatus.STAGE_NULL_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -304,6 +313,38 @@ class UpdateServiceTest {
 
         testCallbackHandler("WrongCallback",
                 BotStatus.STAGE_SEND_REPORT_MENU_NULL,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
+    void handleGetStageOneMenuVolunteerCallbackTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+
+        testCallbackHandler("M11B2Callback",
+                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.UNHANDLED_UPDATE);
+    }
+
+    @Test
+    void handleGetStageTwoMenuVolunteerCallbackTest() throws URISyntaxException, IOException {
+
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER,
                 BotStatus.UNHANDLED_UPDATE);
     }
 

@@ -6,6 +6,7 @@ import pro.sky.java.course7.animal_shelter_bot.model.Animal;
 import pro.sky.java.course7.animal_shelter_bot.repository.AnimalRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnimalService {
@@ -28,12 +29,10 @@ public class AnimalService {
         return animalRepository.save(animal);
     }
 
-    public Animal deleteAnimalId(Long id) {
-        Animal animalDelete = animalRepository.findById(id).orElse(null);
-        if (animalDelete != null) {
-            animalRepository.deleteById(id);
-        }
-        return animalDelete;
+    public Optional<Animal> deleteAnimalId(Long id) {
+        Optional<Animal> deletedAnimal = animalRepository.findById(id);
+        deletedAnimal.ifPresent(animal -> animalRepository.deleteById(id));
+        return deletedAnimal;
     }
 
     public Animal updateAnimal(Animal animal) {

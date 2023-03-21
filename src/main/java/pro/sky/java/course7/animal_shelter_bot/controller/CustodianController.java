@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.service.CustodianService;
 
@@ -17,6 +16,7 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
+@RequestMapping("/custodians")
 public class CustodianController {
     private final CustodianService custodianService;
 
@@ -31,7 +31,7 @@ public class CustodianController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserCustodian.class))})
     })
-    @PostMapping("/newCustodian")
+    @PostMapping("")
     public ResponseEntity<UserCustodian> createCustodian(@Parameter(description = "Period to be created")
                                                          @RequestBody UserCustodian custodian) {
         return ok(custodianService.createCustodian(custodian));
@@ -42,8 +42,8 @@ public class CustodianController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserCustodian.class))})
     })
-    @PutMapping("/update")
-    public ResponseEntity<UserCustodian> updateCustodian(@Parameter(description = "Custodian to be created")
+    @PutMapping("")
+    public ResponseEntity<UserCustodian> updateCustodian(@Parameter(description = "Custodian to be updated")
                                                          @RequestBody UserCustodian custodian) {
         UserCustodian findCustodian = custodianService.editCustodian(custodian);
         if (findCustodian == null) {
@@ -57,7 +57,7 @@ public class CustodianController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserCustodian.class))})
     })
-    @GetMapping("/getAllCustodian")
+    @GetMapping("")
     public ResponseEntity<List<UserCustodian>> getCustodian() {
         List<UserCustodian> foundCustodian = custodianService.findAll();
         if (foundCustodian == null) {
@@ -65,16 +65,15 @@ public class CustodianController {
         }
         return ResponseEntity.ok(foundCustodian);
     }
+
     @Operation(summary = "Get true/false about custodian existing by it's chatId", tags = "Custodian")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Answer",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserCustodian.class))})
     })
-    @GetMapping("/isCustodianByChatIdExists")
+    @GetMapping("/exists-by-chat-id")
     public Boolean isCustodianByChatIdExists(Long chatId) {
         return custodianService.findUserByChatId(chatId);
     }
-
-
 }

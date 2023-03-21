@@ -6,8 +6,11 @@ import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import pro.sky.java.course7.animal_shelter_bot.listener.TelegramBotUpdatesListener;
 import pro.sky.java.course7.animal_shelter_bot.model.Photo;
 import pro.sky.java.course7.animal_shelter_bot.model.Report;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
@@ -30,6 +33,7 @@ public class ReportService {
     private final TrialPeriodRepository trialPeriodRepository;
     private final CustodianService custodianService;
     private final TelegramBot telegramBot;
+    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     @Value("${telegram.bot.token}")
     private String token;
@@ -65,7 +69,7 @@ public class ReportService {
         if (chatId.isPresent()) {
             SendMessage message = new SendMessage(chatId.get(), text);
             SendResponse response = telegramBot.execute(message);
-            System.out.println("Sending message to " + chatId);
+            logger.info("Sending message to " + chatId);
             return true;
         }
         return false;

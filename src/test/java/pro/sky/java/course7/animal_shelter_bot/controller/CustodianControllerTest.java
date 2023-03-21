@@ -78,7 +78,7 @@ class CustodianControllerTest {
                 .thenReturn(userCustodian);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/newCustodian")
+                        .post("/custodians")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -114,7 +114,7 @@ class CustodianControllerTest {
         when(userCustodianRepository.save(eq(newCustodian))).thenReturn(newCustodian);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/update")
+                        .put("/custodians")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -125,7 +125,7 @@ class CustodianControllerTest {
         requestObject.put("id", wrongId);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/update")
+                        .put("/custodians")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -152,7 +152,7 @@ class CustodianControllerTest {
                 .thenReturn(List.of(firstCustodian, secondCustodian, thirdCustodian));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/getAllCustodian"))
+                        .get("/custodians"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id").value(firstId))

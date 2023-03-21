@@ -16,7 +16,7 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("/volunteer")
+@RequestMapping("/volunteers")
 public class VolunteerController {
 
     private final VolunteerService volunteerService;
@@ -31,7 +31,7 @@ public class VolunteerController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Volunteer.class))})
     })
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<Volunteer>> getVolunteerAll() {
         return ResponseEntity.ok(volunteerService.getVolunteerAll());
     }
@@ -42,7 +42,7 @@ public class VolunteerController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Volunteer.class))})
     })
-    @GetMapping("/all/free")
+    @GetMapping("/free")
     public ResponseEntity<List<Volunteer>> getVolunteerAllFree() {
         return ResponseEntity.ok(volunteerService.getVolunteerAllFree());
     }
@@ -53,7 +53,7 @@ public class VolunteerController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Volunteer.class))})
     })
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<Volunteer> createVolunteer(@Parameter(description = "The volunteer that will be created")
                                                @RequestBody Volunteer volunteer) {
         return ok(volunteerService.createVolunteer(volunteer));
@@ -65,7 +65,7 @@ public class VolunteerController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Volunteer.class))})
     })
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Volunteer> deleteVolunteerId(@PathVariable Long id) {
         if (volunteerService.deleteVolunteerId(id) == null) {
            return ResponseEntity.notFound().build();
@@ -79,7 +79,7 @@ public class VolunteerController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Volunteer.class))})
     })
-    @PutMapping("/update")
+    @PutMapping("")
     public Volunteer updateVolunteer(@Parameter(description = "Information about the Volunteer has been updated")
                                @RequestBody Volunteer volunteer) {
         return volunteerService.updateVolunteer(volunteer);

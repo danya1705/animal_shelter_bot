@@ -46,7 +46,6 @@ public class UpdateService {
 
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
-     *
      * @param update не должен быть null
      * @return ответное сообщение для отправки в Телеграм-бот
      **/
@@ -461,7 +460,6 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.INFO_BUTTON);
             return createMessage(chatId, BotStatus.SAFETY_PRECAUTIONS, keyboardService.backButtonKeyboard());
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -481,7 +479,6 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -503,16 +500,14 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
+    }
 
-    }private SendMessage handleGetStageTwoMenuVolunteerCallback(Long chatId, String callbackData) {
-
+    private SendMessage handleGetStageTwoMenuVolunteerCallback(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -522,7 +517,6 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
             return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
         }
-
         if (callbackData.equals(Buttons.M0_SECOND_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
@@ -535,7 +529,6 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
         }
-
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -559,7 +552,6 @@ public class UpdateService {
         statusMap.put(chatId, BotStatus.START_BUTTON);
         return message;
     }
-
 
     public SendMessage createMessage(Long chatId, BotStatus botStatus) {
         SendMessage message = new SendMessage(chatId, botStatus.getMessageText());

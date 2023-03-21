@@ -20,11 +20,9 @@ public class CustodianService {
     }
 
     public UserCustodian editCustodian(UserCustodian custodian) {
-        UserCustodian findCustodian = userCustodianRepository.findById(custodian.getId()).orElse(null);
-        if (findCustodian != null) {
-            return userCustodianRepository.save(custodian);
-        }
-        return null;
+        return userCustodianRepository.findById(custodian.getId())
+                .map(c -> userCustodianRepository.save(custodian))
+                .orElse(null);
     }
 
     public List<UserCustodian> findAll() {

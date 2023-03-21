@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.java.course7.animal_shelter_bot.model.Animal;
-import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
 import pro.sky.java.course7.animal_shelter_bot.service.AnimalService;
 
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("/animal")
+@RequestMapping("/animals")
 public class AnimalController {
 
     private final AnimalService animalService;
@@ -32,7 +31,7 @@ public class AnimalController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Animal.class))})
     })
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<Animal>> getAnimalAll() {
         return ResponseEntity.ok(animalService.getAnimalAll());
     }
@@ -43,7 +42,7 @@ public class AnimalController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Animal.class))})
     })
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<Animal> createAnimal(@Parameter(description = "The animal that will be created")
                                                @RequestBody Animal animal) {
         return ok(animalService.createAnimal(animal));
@@ -55,12 +54,11 @@ public class AnimalController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Animal.class))})
     })
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Animal> deleteAnimalId(@PathVariable Long id) {
-        if (animalService.deleteAnimalId(id) == null) {
-           return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(animalService.deleteAnimalId(id));
+        return animalService.deleteAnimalId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Updating Animal data", tags = "Animal")
@@ -69,7 +67,7 @@ public class AnimalController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Animal.class))})
     })
-    @PutMapping("/update")
+    @PutMapping("")
     public Animal updateAnimal(@Parameter(description = "Information about the animal has been updated")
                                @RequestBody Animal animal) {
         return animalService.updateAnimal(animal);

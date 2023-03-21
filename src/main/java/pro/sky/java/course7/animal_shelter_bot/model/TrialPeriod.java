@@ -12,8 +12,8 @@ public class TrialPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate StartDate;
-    private LocalDate EndDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Long volunteerId;
     private Long userId;
     private Long animalId;
@@ -36,19 +36,19 @@ public class TrialPeriod {
     }
 
     public LocalDate getStartDate() {
-        return StartDate;
+        return startDate;
     }
 
     public void setStartDate(LocalDate startDate) {
-        StartDate = startDate;
+        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {
-        return EndDate;
+        return endDate;
     }
 
     public void setEndDate(LocalDate endDate) {
-        EndDate = endDate;
+        this.endDate = endDate;
     }
 
     public Long getUserId() {
@@ -71,8 +71,8 @@ public class TrialPeriod {
     public String toString() {
         return "TrialPeriod{" +
                 "id=" + id +
-                ", StartDate=" + StartDate +
-                ", EndDate=" + EndDate +
+                ", StartDate=" + startDate +
+                ", EndDate=" + endDate +
                 ", volunteerId=" + volunteerId +
                 ", userId=" + userId +
                 ", animalId=" + animalId +
@@ -84,11 +84,11 @@ public class TrialPeriod {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TrialPeriod that = (TrialPeriod) o;
-        return id.equals(that.id) && Objects.equals(StartDate, that.StartDate) && Objects.equals(EndDate, that.EndDate) && volunteerId.equals(that.volunteerId) && userId.equals(that.userId) && animalId.equals(that.animalId);
+        return id.equals(that.id) && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate) && volunteerId.equals(that.volunteerId) && userId.equals(that.userId) && animalId.equals(that.animalId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, StartDate, EndDate, volunteerId, userId, animalId);
+        return Objects.hash(id, startDate, endDate, volunteerId, userId, animalId);
     }
 }

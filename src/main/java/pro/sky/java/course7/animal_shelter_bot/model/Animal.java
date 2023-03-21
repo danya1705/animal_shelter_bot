@@ -1,9 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -13,7 +10,8 @@ public class Animal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String animalType;
+    @Enumerated(EnumType.STRING)
+    private AnimalType animalType;
 
     private String nickname;
 
@@ -27,11 +25,11 @@ public class Animal {
         this.id = id;
     }
 
-    public String getAnimalType() {
+    public AnimalType getAnimalType() {
         return animalType;
     }
 
-    public void setAnimalType(String animalType) {
+    public void setAnimalType(AnimalType animalType) {
         this.animalType = animalType;
     }
 

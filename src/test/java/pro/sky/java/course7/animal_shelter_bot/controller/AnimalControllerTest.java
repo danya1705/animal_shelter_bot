@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.sky.java.course7.animal_shelter_bot.model.Animal;
+import pro.sky.java.course7.animal_shelter_bot.model.AnimalType;
 import pro.sky.java.course7.animal_shelter_bot.repository.*;
 import pro.sky.java.course7.animal_shelter_bot.service.*;
 
@@ -75,7 +76,7 @@ class AnimalControllerTest {
                 .thenReturn(List.of(firstAnimal, secondAnimal, thirdAnimal));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/animal/all"))
+                        .get("/animals"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id").value(firstId))
@@ -87,7 +88,7 @@ class AnimalControllerTest {
     void createAnimalTest() throws Exception {
 
         Long id = 1L;
-        String animalType = "Cat";
+        AnimalType animalType = AnimalType.CAT;
         String nickname = "Begemot";
         Boolean availabilityAnimal = true;
 
@@ -99,7 +100,7 @@ class AnimalControllerTest {
 
         JSONObject requestObject = new JSONObject();
         requestObject.put("id", id);
-        requestObject.put("animalType", animalType);
+        requestObject.put("animalType", animalType.name());
         requestObject.put("nickname", nickname);
         requestObject.put("availabilityAnimal", availabilityAnimal);
 
@@ -107,13 +108,13 @@ class AnimalControllerTest {
                 .thenReturn(animal);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/animal/add")
+                        .post("/animals")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.animalType").value(animalType))
+                .andExpect(jsonPath("$.animalType").value(animalType.name()))
                 .andExpect(jsonPath("$.nickname").value(nickname))
                 .andExpect(jsonPath("$.availabilityAnimal").value(availabilityAnimal));
     }
@@ -130,12 +131,12 @@ class AnimalControllerTest {
         when(animalRepository.findById(eq(wrongId))).thenReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/animal/delete/{id}", correctId))
+                        .delete("/animals/{id}", correctId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(correctId));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/animal/delete/{id}", wrongId))
+                        .delete("/animals/{id}", wrongId))
                 .andExpect(status().isNotFound());
     }
 }

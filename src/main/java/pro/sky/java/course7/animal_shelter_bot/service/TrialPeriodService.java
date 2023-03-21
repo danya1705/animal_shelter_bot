@@ -5,10 +5,11 @@ import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TrialPeriodService {
-    TrialPeriodRepository trialPeriodRepository;
+    private final TrialPeriodRepository trialPeriodRepository;
 
     public TrialPeriodService(TrialPeriodRepository trialPeriodRepository) {
         this.trialPeriodRepository = trialPeriodRepository;
@@ -23,18 +24,14 @@ public class TrialPeriodService {
     }
 
     public TrialPeriod editTrialPeriod(TrialPeriod period) {
-        TrialPeriod findTrialPeriod = trialPeriodRepository.findById(period.getId()).orElse(null);
-        if (findTrialPeriod == null) {
-            return null;
-        }
-        return trialPeriodRepository.save(period);
+        return trialPeriodRepository.findById(period.getId())
+                .map(p -> trialPeriodRepository.save(period))
+                .orElse(null);
     }
 
-    public TrialPeriod deletePeriod(long id) {
-        TrialPeriod findTrialPeriod = trialPeriodRepository.findById(id).orElse(null);
-        if (findTrialPeriod != null) {
-            trialPeriodRepository.deleteById(id);
-        }
-        return null;
+    public Optional<TrialPeriod> deletePeriod(long id) {
+        Optional<TrialPeriod> findTrialPeriod = trialPeriodRepository.findById(id);
+        findTrialPeriod.ifPresent(t -> trialPeriodRepository.deleteById(id));
+        return findTrialPeriod;
     }
 }

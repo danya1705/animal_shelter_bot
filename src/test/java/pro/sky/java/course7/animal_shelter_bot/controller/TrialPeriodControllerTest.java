@@ -74,7 +74,7 @@ class TrialPeriodControllerTest {
                 .thenReturn(List.of(firstTrialPeriod, secondTrialPeriod, thirdTrialPeriod));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/getAll"))
+                        .get("/trial-periods"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id").value(firstId))
@@ -106,7 +106,7 @@ class TrialPeriodControllerTest {
                 .thenReturn(trialPeriod);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/new")
+                        .post("/trial-periods")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -157,7 +157,7 @@ class TrialPeriodControllerTest {
          * в теле Response.
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/new")
+                        .put("/trial-periods")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -175,7 +175,7 @@ class TrialPeriodControllerTest {
          * Тест должен вернуть статус 404.
          */
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/new")
+                        .put("/trial-periods")
                         .content(requestObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
