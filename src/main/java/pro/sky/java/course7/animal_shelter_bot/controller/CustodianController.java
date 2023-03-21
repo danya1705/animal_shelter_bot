@@ -72,8 +72,8 @@ public class CustodianController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserCustodian.class))})
     })
-    @GetMapping("/exists-by-chat-id")
-    public Boolean isCustodianByChatIdExists(Long chatId) {
+    @GetMapping("/exists-by-chat-id/{chat-id}")
+    public Boolean isCustodianByChatIdExists(@PathVariable("chat-id") Long chatId) {
         return custodianService.findUserByChatId(chatId);
     }
 }

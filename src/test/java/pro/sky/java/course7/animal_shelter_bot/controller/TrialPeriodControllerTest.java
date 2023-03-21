@@ -181,4 +181,27 @@ class TrialPeriodControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void closureTrialPeriodTest() throws Exception {
+
+        Long id = 123L;
+        Long wrongId = 321L;
+
+        TrialPeriod trialPeriod = new TrialPeriod();
+        trialPeriod.setId(id);
+
+        when(trialPeriodRepository.findById(eq(id))).thenReturn(Optional.of(trialPeriod));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/trial-periods/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id));
+
+        when(trialPeriodRepository.findById(eq(wrongId))).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/trial-periods/{id}", wrongId))
+                .andExpect(status().isNotFound());
+    }
 }

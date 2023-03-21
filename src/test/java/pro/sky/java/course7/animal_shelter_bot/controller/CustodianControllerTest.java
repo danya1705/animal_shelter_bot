@@ -19,10 +19,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.mockito.ArgumentMatchers.booleanThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
 class CustodianControllerTest {
@@ -158,5 +159,30 @@ class CustodianControllerTest {
                 .andExpect(jsonPath("$[0].id").value(firstId))
                 .andExpect(jsonPath("$[1].id").value(secondId))
                 .andExpect(jsonPath("$[2].id").value(thirdId));
+    }
+
+    @Test
+    void isCustodianByChatIdExistsTest() throws Exception {
+
+        Long id = 1L;
+        Long chatID = 123L;
+        Long wrongChatId = 321L;
+        UserCustodian custodian = new UserCustodian();
+        custodian.setId(id);
+        custodian.setUserChatId(chatID);
+
+        when(userCustodianRepository.findUserCustodianByUserChatId(eq(chatID))).thenReturn(custodian);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/custodians/exists-by-chat-id/{chat-id}", chatID))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        when(userCustodianRepository.findUserCustodianByUserChatId(eq(wrongChatId))).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/custodians/exists-by-chat-id/{chat-id}", wrongChatId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
     }
 }

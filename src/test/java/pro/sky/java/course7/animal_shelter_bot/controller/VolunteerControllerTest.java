@@ -83,6 +83,36 @@ class VolunteerControllerTest {
     }
 
     @Test
+    void getVolunteerAllFreeTest() throws Exception {
+
+        Long firstId = 1L;
+        Long secondId = 2L;
+        Long thirdId = 3L;
+
+        Volunteer firstVolunteer = new Volunteer();
+        firstVolunteer.setId(firstId);
+        firstVolunteer.setAvailable(false);
+
+        Volunteer secondVolunteer = new Volunteer();
+        secondVolunteer.setId(secondId);
+        secondVolunteer.setAvailable(true);
+
+        Volunteer thirdVolunteer = new Volunteer();
+        thirdVolunteer.setId(thirdId);
+        thirdVolunteer.setAvailable(true);
+
+        when(volunteerRepositiory.findVolunteersByAvailableTrue())
+                .thenReturn(List.of(secondVolunteer, thirdVolunteer));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/volunteers/free"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(secondId))
+                .andExpect(jsonPath("$[1].id").value(thirdId));
+    }
+
+    @Test
     void createVolunteerTest() throws Exception {
 
         Long id = 123L;
@@ -137,5 +167,48 @@ class VolunteerControllerTest {
                         .delete("/volunteers/{id}", wrongId))
                 .andExpect(status().isNotFound());
 
+    }
+
+    @Test
+    void updateVolunteerTest() throws Exception {
+
+        Long id = 1L;
+        Long wrongId = 2L;
+        String oldVolunteerName = "Ace Ventura";
+        String newVolunteerName = "Doctor Aibolit";
+
+        Volunteer oldVolunteer = new Volunteer();
+        oldVolunteer.setId(id);
+        oldVolunteer.setVolunteerName(oldVolunteerName);
+
+        Volunteer newVolunteer = new Volunteer();
+        newVolunteer.setId(id);
+        newVolunteer.setVolunteerName(newVolunteerName);
+
+        JSONObject requestObject = new JSONObject();
+        requestObject.put("id", id);
+        requestObject.put("volunteerName", newVolunteerName);
+
+        when(volunteerRepositiory.findById(eq(id))).thenReturn(Optional.of(oldVolunteer));
+        when(volunteerRepositiory.save(eq(newVolunteer))).thenReturn(newVolunteer);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/volunteers")
+                        .content(requestObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.volunteerName").value(newVolunteerName));
+
+        when(volunteerRepositiory.findById(eq(wrongId))).thenReturn(Optional.empty());
+        requestObject.put("id", wrongId);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/volunteers")
+                        .content(requestObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

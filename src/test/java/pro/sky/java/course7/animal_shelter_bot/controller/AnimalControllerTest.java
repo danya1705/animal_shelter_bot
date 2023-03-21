@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -137,6 +138,60 @@ class AnimalControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/animals/{id}", wrongId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateAnimalTest() throws Exception {
+
+        Long id = 1L;
+        Long wrongId = 2L;
+        AnimalType animalType = AnimalType.CAT;
+        AnimalType newAnimalType = AnimalType.DOG;
+        String nickname = "Begemot";
+        String newNickname = "Mukhtar";
+        Boolean availabilityAnimal = true;
+
+        Animal animal = new Animal();
+        animal.setId(id);
+        animal.setAnimalType(animalType);
+        animal.setNickname(nickname);
+        animal.setAvailabilityAnimal(availabilityAnimal);
+
+        Animal newAnimal = new Animal();
+        newAnimal.setId(id);
+        newAnimal.setAnimalType(newAnimalType);
+        newAnimal.setNickname(newNickname);
+        newAnimal.setAvailabilityAnimal(availabilityAnimal);
+
+        JSONObject requestObject = new JSONObject();
+        requestObject.put("id", id);
+        requestObject.put("animalType", newAnimalType.name());
+        requestObject.put("nickname", newNickname);
+        requestObject.put("availabilityAnimal", availabilityAnimal);
+
+        when(animalRepository.findById(eq(id))).thenReturn(Optional.of(animal));
+        when(animalRepository.save(eq(newAnimal))).thenReturn(newAnimal);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/animals")
+                        .content(requestObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.animalType").value(newAnimalType.name()))
+                .andExpect(jsonPath("$.nickname").value(newNickname))
+                .andExpect(jsonPath("$.availabilityAnimal").value(availabilityAnimal));
+
+        when(animalRepository.findById(eq(wrongId))).thenReturn(Optional.empty());
+        requestObject.put("id", wrongId);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/animals")
+                        .content(requestObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }
