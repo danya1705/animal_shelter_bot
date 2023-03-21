@@ -30,6 +30,10 @@ public class UpdateService {
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
     private final Map<Long, BotStatus> statusMap = new HashMap<>();
+    /**
+     * Интерфейс для хранения выбранного животного пользователем.
+     * Ключ - идентификатор Телеграм-чата. Значение - выбранное животное (кошка, или собака).
+     */
     private final Map<Long, String> statusMenu = new HashMap<>();
     private final Map<Long, Report> reportMap = new HashMap<>();
 
@@ -76,6 +80,9 @@ public class UpdateService {
         } else {
             statusMap.putIfAbsent(chatId, BotStatus.GREETINGS_MESSAGE);
         }
+        /**
+         *  Статус, определяет логику действия бота, в зависимости от меню, в котором находится пользователь
+         */
 
         BotStatus botStatus = statusMap.get(chatId);
         System.out.println(chatId + " " + botStatus);
@@ -319,6 +326,13 @@ public class UpdateService {
         }
     }
 
+    /**
+     * Метод обработки нажатия кнопки "Назад".
+     * Возвращает в предыдущее меню
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     public SendMessage handleBackToMainReportMessage(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -327,7 +341,13 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
+    /**
+     * Метод обработки нажатия кнопки "Назад".
+     * Возвращает в мены выбора информации по собакам
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     public SendMessage handleBackTheDogInfo(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON_DOG.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
@@ -336,7 +356,13 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
+    /**
+     * Метод обработки нажатия кнопки "Назад".
+     * Возвращает в мены выбора информации по кошкам
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     public SendMessage handleBackTheCatInfo(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON_CAT.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
@@ -346,6 +372,13 @@ public class UpdateService {
         }
     }
 
+    /**
+     * Метод обработки нажатия кнопки "Назад".
+     * Возвращает в мены выбора информации по приюту
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     public SendMessage handleBackInfoShelter(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
@@ -354,7 +387,12 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
+    /**
+     * Метод обработки нажатия кнопок в меню информации о животном
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
@@ -442,6 +480,13 @@ public class UpdateService {
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
+    /**
+     * Метод обработки нажатия кнопок в меню информации о приюте
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
+
     private SendMessage handleGetStageTwoMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
@@ -462,7 +507,13 @@ public class UpdateService {
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
-
+    /**
+     * Метод обработки нажатия кнопок в меню выбора животного.
+     * Заносит значение в мапу, о выбранном животном
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню с информацией о выбраном животном и соответствующие кнопки
+     */
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M05_SECOND_BUTTON.getCallback())) {
@@ -510,7 +561,12 @@ public class UpdateService {
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
-
+    /**
+     * Метод обработки нажатия кнопок в основном меню
+     * @param chatId
+     * @param callbackData
+     * @return выводит заданное меню и кнопки
+     */
     private SendMessage handleGetStageNullMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M0_FIRST_BUTTON.getCallback())) {
@@ -531,7 +587,12 @@ public class UpdateService {
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
-
+    /**
+     * Метод  нажатия кнопки "Старт". Запоминает пользователя.
+     * @param chatId
+     * @param callbackData
+     * @return выводит основное меню и кнопки
+     */
     private SendMessage handleGetStartButtonCallback(Long chatId, String callbackData) {
         if (callbackData.equals(Buttons.START_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
@@ -540,13 +601,22 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
-
+    /**
+     * Метод  приветственного сообщения
+     * @param chatId
+     * @return сообщение
+     */
     private SendMessage handlePrintGreetingsMessage(Long chatId) {
         SendMessage message = createMessage(chatId, BotStatus.GREETINGS_MESSAGE, keyboardService.startButtonKeyboard());
         statusMap.put(chatId, BotStatus.START_BUTTON);
         return message;
     }
-
+    /**
+     * Метод  приветственного сообщения, предупреждает, что пользователь не зарегестрирован
+     * Предлагает зарегестрироваться
+     * @param chatId
+     * @return сообщение
+     */
     public SendMessage handleUnregisteredUserMessage(Long chatId) {
         SendMessage message = createMessage(chatId, BotStatus.UNREGISTERED_USER_MESSAGE, keyboardService.sendContactKeyboard());
         statusMap.put(chatId, BotStatus.START_BUTTON);
