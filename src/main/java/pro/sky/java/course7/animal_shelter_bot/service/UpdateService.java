@@ -24,6 +24,7 @@ import java.util.Map;
 public class UpdateService {
     private final KeyboardService keyboardService;
     private final VolunteerService volunteerService;
+    private final TrialPeriodService trialPeriodService;
     private final CustodianService custodianService;
     private final ReportService reportService;
     /**
@@ -37,11 +38,13 @@ public class UpdateService {
     private final Map<Long, String> statusMenu = new HashMap<>();
     private final Map<Long, Report> reportMap = new HashMap<>();
 
-    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService, VolunteerService volunteerService) {
+    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService,
+                         VolunteerService volunteerService, TrialPeriodService trialPeriodService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
         this.reportService = reportService;
         this.volunteerService = volunteerService;
+        this.trialPeriodService = trialPeriodService;
     }
 
     public Map<Long, Report> getReportMap() {
@@ -155,12 +158,13 @@ public class UpdateService {
                 }
             }
             case STAGE_ONE_MENU_VOLUNTEER -> {
-                if (update.callbackQuery() != null){
+                if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageOneMenuVolunteerCallback(chatId, callbackData);
                 }
-            }case STAGE_SEND_REPORT_MENU_VOLUNTEER -> {
-                if (update.callbackQuery() != null){
+            }
+            case STAGE_SEND_REPORT_MENU_VOLUNTEER -> {
+                if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageTwoMenuVolunteerCallback(chatId, callbackData);
                 }
@@ -535,7 +539,6 @@ public class UpdateService {
 
     /**
      * Обработка меню: -Позвать волонтера
-     *
      */
     private SendMessage handleGetStageOneMenuVolunteerCallback(Long chatId, String callbackData) {
 
@@ -578,8 +581,15 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.STAGE_ONE_MENU, keyboardService.stageOneMenuKeyboard());
         }
         if (callbackData.equals(Buttons.M0_THIRD_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
-            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL, keyboardService.stageNullReportKeyboard());
+            if (trialPeriodService.isPeriodByUserChatIdExists(custodianService
+                    .findUserCustodianByChatId(chatId)
+                    .getId())) {
+                statusMap.put(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
+                return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NULL, keyboardService.stageNullReportKeyboard());
+            } else {
+                statusMap.put(chatId, BotStatus.STAGE_ONE_MENU);
+                return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_NO_TRIAL_PERIOD, keyboardService.stageOneMenuKeyboard());
+            }
         }
         if (callbackData.equals(Buttons.M0_FOURTH_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
