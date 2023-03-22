@@ -15,6 +15,7 @@ import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.*;
 import pro.sky.java.course7.animal_shelter_bot.service.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -202,6 +203,78 @@ class TrialPeriodControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/trial-periods/{id}", wrongId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void extendTrialPeriodFor15DaysTest() throws Exception {
+
+        Long id = 123L;
+        Long wrongId = 321L;
+        LocalDate oldEndDate = LocalDate.of(2023, 1, 25);
+        LocalDate newEndDate = LocalDate.of(2023, 2, 9);
+
+        TrialPeriod oldTrialPeriod = new TrialPeriod();
+        oldTrialPeriod.setId(id);
+        oldTrialPeriod.setEndDate(oldEndDate);
+
+        TrialPeriod newTrialPeriod = new TrialPeriod();
+        newTrialPeriod.setId(id);
+        newTrialPeriod.setEndDate(newEndDate);
+        newTrialPeriod.setStartDate(oldEndDate);
+        newTrialPeriod.setVolunteerId(id);
+        newTrialPeriod.setUserId(id);
+        newTrialPeriod.setAnimalId(id);
+
+        when(trialPeriodRepository.findById(eq(id))).thenReturn(Optional.of(oldTrialPeriod));
+        when(trialPeriodRepository.save(eq(newTrialPeriod))).thenReturn(newTrialPeriod);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/trial-periods/extend15/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.endDate").value(newEndDate.toString()));
+
+        when(trialPeriodRepository.findById(eq(wrongId))).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/trial-periods/extend15/{id}", wrongId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void extendTrialPeriodFor30DaysTest() throws Exception {
+
+        Long id = 123L;
+        Long wrongId = 321L;
+        LocalDate oldEndDate = LocalDate.of(2023, 1, 25);
+        LocalDate newEndDate = LocalDate.of(2023, 2, 24);
+
+        TrialPeriod oldTrialPeriod = new TrialPeriod();
+        oldTrialPeriod.setId(id);
+        oldTrialPeriod.setEndDate(oldEndDate);
+
+        TrialPeriod newTrialPeriod = new TrialPeriod();
+        newTrialPeriod.setId(id);
+        newTrialPeriod.setEndDate(newEndDate);
+        newTrialPeriod.setStartDate(oldEndDate);
+        newTrialPeriod.setVolunteerId(id);
+        newTrialPeriod.setUserId(id);
+        newTrialPeriod.setAnimalId(id);
+
+        when(trialPeriodRepository.findById(eq(id))).thenReturn(Optional.of(oldTrialPeriod));
+        when(trialPeriodRepository.save(eq(newTrialPeriod))).thenReturn(newTrialPeriod);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/trial-periods/extend30/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.endDate").value(newEndDate.toString()));
+
+        when(trialPeriodRepository.findById(eq(wrongId))).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/trial-periods/extend30/{id}", wrongId))
                 .andExpect(status().isNotFound());
     }
 }

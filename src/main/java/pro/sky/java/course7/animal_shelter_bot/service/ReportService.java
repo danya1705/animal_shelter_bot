@@ -2,6 +2,7 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.File;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
@@ -68,6 +69,7 @@ public class ReportService {
         Optional<Long> chatId = custodianService.findChatIdByUserId(id);
         if (chatId.isPresent()) {
             SendMessage message = new SendMessage(chatId.get(), text);
+            message.parseMode(ParseMode.HTML);
             SendResponse response = telegramBot.execute(message);
             logger.info("Sending message to " + chatId);
             return true;

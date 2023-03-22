@@ -3,8 +3,8 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
 
@@ -59,20 +59,30 @@ public class TrialPeriodService {
         return trialPeriodRepository.chatIdByTrialPeriod(id);
     }
 
-    public void extendTrialPeriodFor15Days(Long id) {
-        TrialPeriod period = trialPeriodRepository.getById(id);
-        period.setEndDate(period.getEndDate().plusDays(15));
-        trialPeriodRepository.save(period);
-        sendMessage(trialPeriodRepository.chatIdByByTrialPeriodId(id), "Здравствуйте, к сожалению, Ваш испытательный срок был продлен на 15 дней. " +
-                "Уточнить подробности можно, связавшись с волонтером.");
+    public TrialPeriod extendTrialPeriodFor15Days(Long id) {
+        Optional<TrialPeriod> periodOptional = trialPeriodRepository.findById(id);
+        if (periodOptional.isPresent()) {
+            TrialPeriod period = periodOptional.get();
+            period.setEndDate(period.getEndDate().plusDays(15));
+            sendMessage(trialPeriodRepository.chatIdByByTrialPeriodId(id), "Здравствуйте, к сожалению, Ваш испытательный срок был продлен на 15 дней. " +
+                    "Уточнить подробности можно, связавшись с волонтером.");
+            trialPeriodRepository.save(period);
+            return period;
+        }
+        return null;
     }
 
-    public void extendTrialPeriodFor30Days(Long id) {
-        TrialPeriod period = trialPeriodRepository.getById(id);
-        period.setEndDate(period.getEndDate().plusDays(30));
-        trialPeriodRepository.save(period);
-        sendMessage(trialPeriodRepository.chatIdByByTrialPeriodId(id), "Здравствуйте, к сожалению, Ваш испытательный срок был продлен на 30 дней. " +
-                "Уточнить подробности можно, связавшись с волонтером.");
+    public TrialPeriod extendTrialPeriodFor30Days(Long id) {
+        Optional<TrialPeriod> periodOptional = trialPeriodRepository.findById(id);
+        if (periodOptional.isPresent()) {
+            TrialPeriod period = periodOptional.get();
+            period.setEndDate(period.getEndDate().plusDays(30));
+            sendMessage(trialPeriodRepository.chatIdByByTrialPeriodId(id), "Здравствуйте, к сожалению, Ваш испытательный срок был продлен на 30 дней. " +
+                    "Уточнить подробности можно, связавшись с волонтером.");
+            trialPeriodRepository.save(period);
+            return period;
+        }
+        return null;
     }
 
 

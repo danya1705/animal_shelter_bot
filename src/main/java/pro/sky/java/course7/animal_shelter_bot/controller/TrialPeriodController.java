@@ -89,18 +89,29 @@ public class TrialPeriodController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
-    @PutMapping("/extend15{id}")
-    public void extendTrialPeriodFor15Days(@PathVariable Long id) {
-        trialPeriodService.extendTrialPeriodFor15Days(id);
+    @PutMapping("/extend15/{id}")
+    public ResponseEntity<TrialPeriod> extendTrialPeriodFor15Days(@PathVariable Long id) {
+        TrialPeriod period = trialPeriodService.extendTrialPeriodFor15Days(id);
+        if (period != null) {
+            return ResponseEntity.ok(period);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
     @Operation(summary = "Extend trial period for 30 days", tags = "Trial period Extension")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trial period has been extended for 30 days",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TrialPeriod.class))})
     })
-    @PutMapping("/extend30{id}")
-    public void extendTrialPeriodFor30Days(@PathVariable Long id) {
-        trialPeriodService.extendTrialPeriodFor30Days(id);
+    @PutMapping("/extend30/{id}")
+    public ResponseEntity<TrialPeriod> extendTrialPeriodFor30Days(@PathVariable Long id) {
+        TrialPeriod period = trialPeriodService.extendTrialPeriodFor30Days(id);
+        if (period != null) {
+            return ResponseEntity.ok(period);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
