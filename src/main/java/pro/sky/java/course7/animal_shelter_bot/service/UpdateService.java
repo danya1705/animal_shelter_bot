@@ -1,5 +1,6 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Contact;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
@@ -7,11 +8,9 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import org.springframework.stereotype.Service;
-import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
-import pro.sky.java.course7.animal_shelter_bot.model.Buttons;
-import pro.sky.java.course7.animal_shelter_bot.model.Report;
-import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
+import pro.sky.java.course7.animal_shelter_bot.model.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -26,6 +25,7 @@ public class UpdateService {
     private final VolunteerService volunteerService;
     private final CustodianService custodianService;
     private final ReportService reportService;
+    private final TelegramBot telegramBot;
     /**
      * Ключ - идентификатор Телеграм-чата. Значение - статус общение клиент-бот для данного чата.
      */
@@ -37,11 +37,12 @@ public class UpdateService {
     private final Map<Long, String> statusMenu = new HashMap<>();
     private final Map<Long, Report> reportMap = new HashMap<>();
 
-    public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService, VolunteerService volunteerService) {
+    public UpdateService(TelegramBot telegramBot, KeyboardService keyboardService, CustodianService custodianService, ReportService reportService, VolunteerService volunteerService) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
         this.reportService = reportService;
         this.volunteerService = volunteerService;
+        this.telegramBot = telegramBot;
     }
 
     public Map<Long, Report> getReportMap() {
@@ -477,6 +478,10 @@ public class UpdateService {
                 return createMessage(chatId, BotStatus.REASONS_FOR_REFUSAL, keyboardService.backButtonKeyboardCat());
             }
         }
+        if (callbackData.equals(Buttons.M2_ELEVENTH_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
+        }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -541,12 +546,17 @@ public class UpdateService {
 
         if (callbackData.equals(Buttons.M11_FIRST_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+            Volunteer volunteer = volunteerService.callVolunteer();
+            UserCustodian custodian = custodianService.findUserCustodianByChatId(chatId);
+            Long volunteerChatId = volunteer.getChatId();
+            String custodianName = custodian.getFullName();
+            String text = "<a href="+" \"tg://user?id=" + chatId + "\"" + ">" + custodianName + "</a>" + " просил позвонить ему" ;
+            SendMessage message = new SendMessage(volunteerChatId, text);
+            message.parseMode(ParseMode.HTML);
+            SendResponse response = telegramBot.execute(message);
             return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER, keyboardService.stageTwoMenuVolunteerKeyboard());
         }
-        if (callbackData.equals(Buttons.M11_SECOND_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER, keyboardService.stageTwoMenuVolunteerKeyboard());
-        }
+
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
             return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());

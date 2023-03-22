@@ -57,7 +57,10 @@ public class VolunteerService {
 
     public Volunteer callVolunteer() {
         List<Volunteer> volunteers = getVolunteerAllFree();
-        Random random = new Random();
-        return volunteers.get(random.nextInt(volunteers.size()));
+        if (volunteers != null) {
+            Random random = new Random();
+            return volunteers.get(random.nextInt(volunteers.size()));
+        }
+        else throw new VolunteerNotFoundException("Нет свободного волонтера");
     }
 }
