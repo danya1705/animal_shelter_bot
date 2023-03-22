@@ -11,7 +11,7 @@ public enum Buttons {
     M0_FOURTH_BUTTON ("Позвать волонтёра", "M0B4Callback"),
     M05_FIRST_BUTTON("Хочу взять кошку", "M05B1Callback"),
     M05_SECOND_BUTTON("Хочу взять собаку", "M05B2Callback"),
-    M11_FIRST_BUTTON ("Звонок с волонтером", "M11B1Callback"),
+    M11_FIRST_BUTTON ("Поиск волонтера", "M11B1Callback"),
     M11_SECOND_BUTTON ("Чат с волонтером", "M11B2Callback"),
     M1_FIRST_BUTTON ("О приюте", "M1B1Callback"),
     M1_SECOND_BUTTON ("Адрес", "M1B2Callback"),
