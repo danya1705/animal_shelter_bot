@@ -1,6 +1,5 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
-import liquibase.pro.packaged.V;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.exception.VolunteerNotFoundException;
 import pro.sky.java.course7.animal_shelter_bot.model.Volunteer;
@@ -9,15 +8,16 @@ import pro.sky.java.course7.animal_shelter_bot.repository.VolunteerRepositiory;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 public class VolunteerService {
 
     private final VolunteerRepositiory volunteerRepositiory;
+    private final TrialPeriodService trialPeriodService;
 
-    public VolunteerService(VolunteerRepositiory volunteerRepositiory) {
+    public VolunteerService(VolunteerRepositiory volunteerRepositiory, TrialPeriodService trialPeriodService) {
         this.volunteerRepositiory = volunteerRepositiory;
+        this.trialPeriodService = trialPeriodService;
     }
 
     public List<Volunteer> getVolunteerAll() {
@@ -25,7 +25,7 @@ public class VolunteerService {
     }
 
     public Volunteer getVolunteerById(long id) {
-       return volunteerRepositiory.findById(id).orElse(null);
+        return volunteerRepositiory.findById(id).orElse(null);
     }
 
     public Volunteer createVolunteer(Volunteer volunteer) {
@@ -52,15 +52,22 @@ public class VolunteerService {
      * Получить список свободных волонтеров
      */
     public List<Volunteer> getVolunteerAllFree() {
-      return volunteerRepositiory.findVolunteersByAvailableTrue();
+        return volunteerRepositiory.findVolunteersByAvailableTrue();
     }
 
-    public Volunteer callVolunteer() {
-        List<Volunteer> volunteers = getVolunteerAllFree();
-        if (volunteers != null) {
-            Random random = new Random();
-            return volunteers.get(random.nextInt(volunteers.size()));
+    public Volunteer callVolunteer(Long chatID) {
+
+        Long volunteerId = trialPeriodService.getVolunteerIdByUserChatId(chatID);
+        if (volunteerId != null) {
+            return getVolunteerById(volunteerId);
+        } else {
+            List<Volunteer> volunteers = getVolunteerAllFree();
+            if (volunteers.size() > 0) {
+                Random random = new Random();
+                return volunteers.get(random.nextInt(volunteers.size()));
+            } else {
+                return null;
+            }
         }
-        else throw new VolunteerNotFoundException("Нет свободного волонтера");
     }
 }

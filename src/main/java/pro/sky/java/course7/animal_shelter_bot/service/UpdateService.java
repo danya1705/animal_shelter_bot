@@ -35,11 +35,11 @@ public class UpdateService {
      * Интерфейс для хранения выбранного животного пользователем.
      * Ключ - идентификатор Телеграм-чата. Значение - выбранное животное (кошка, или собака).
      */
-    private final Map<Long, String> statusMenu = new HashMap<>();
+    private final Map<Long, AnimalType> statusMenu = new HashMap<>();
     private final Map<Long, Report> reportMap = new HashMap<>();
 
     public UpdateService(KeyboardService keyboardService, CustodianService custodianService, ReportService reportService,
-                         VolunteerService volunteerService, TrialPeriodService trialPeriodService) {
+                         VolunteerService volunteerService, TrialPeriodService trialPeriodService, TelegramBot telegramBot) {
         this.keyboardService = keyboardService;
         this.custodianService = custodianService;
         this.reportService = reportService;
@@ -54,6 +54,7 @@ public class UpdateService {
 
     /**
      * Обрабатывает обновления, получаемые Телеграм-ботом
+     *
      * @param update не должен быть null
      * @return ответное сообщение для отправки в Телеграм-бот
      **/
@@ -84,10 +85,10 @@ public class UpdateService {
         } else {
             statusMap.putIfAbsent(chatId, BotStatus.GREETINGS_MESSAGE);
         }
-        /**
+
+        /*
          *  Статус, определяет логику действия бота, в зависимости от меню, в котором находится пользователь
          */
-
         BotStatus botStatus = statusMap.get(chatId);
         System.out.println(chatId + " " + botStatus);
         switch (botStatus) {
@@ -143,11 +144,11 @@ public class UpdateService {
                 }
             }
             case COMMON_BUTTON -> {
-                if (update.callbackQuery() != null && statusMenu.containsValue("Dog")) {
+                if (update.callbackQuery() != null && statusMenu.get(chatId).equals(AnimalType.DOG)) {
                     String callbackData = update.callbackQuery().data();
                     return handleBackTheDogInfo(chatId, callbackData);
                 }
-                if (update.callbackQuery() != null && statusMenu.containsValue("Cat")) {
+                if (update.callbackQuery() != null && statusMenu.get(chatId).equals(AnimalType.CAT)) {
                     String callbackData = update.callbackQuery().data();
                     return handleBackTheCatInfo(chatId, callbackData);
                 }
@@ -158,13 +159,13 @@ public class UpdateService {
                     return handleSendReportButtonMessage(chatId, callbackData);
                 }
             }
-            case STAGE_ONE_MENU_VOLUNTEER -> {
+            case STAGE_NULL_MENU_VOLUNTEER, STAGE_TWO_MENU_VOLUNTEER, STAGE_THREE_MENU_VOLUNTEER -> {
                 if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageOneMenuVolunteerCallback(chatId, callbackData);
                 }
             }
-            case STAGE_SEND_REPORT_MENU_VOLUNTEER -> {
+            case VOLUNTEER_CALLED_SUCCESSFULLY, FREE_VOLUNTEER_NOT_FOUND -> {
                 if (update.callbackQuery() != null) {
                     String callbackData = update.callbackQuery().data();
                     return handleGetStageTwoMenuVolunteerCallback(chatId, callbackData);
@@ -334,8 +335,9 @@ public class UpdateService {
     /**
      * Метод обработки нажатия кнопки "Назад".
      * Возвращает в предыдущее меню
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     public SendMessage handleBackToMainReportMessage(Long chatId, String callbackData) {
@@ -346,11 +348,13 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     /**
      * Метод обработки нажатия кнопки "Назад".
      * Возвращает в мены выбора информации по собакам
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     public SendMessage handleBackTheDogInfo(Long chatId, String callbackData) {
@@ -361,11 +365,13 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     /**
      * Метод обработки нажатия кнопки "Назад".
      * Возвращает в мены выбора информации по кошкам
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     public SendMessage handleBackTheCatInfo(Long chatId, String callbackData) {
@@ -380,8 +386,9 @@ public class UpdateService {
     /**
      * Метод обработки нажатия кнопки "Назад".
      * Возвращает в мены выбора информации по приюту
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     public SendMessage handleBackInfoShelter(Long chatId, String callbackData) {
@@ -392,10 +399,12 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     /**
      * Метод обработки нажатия кнопок в меню информации о животном
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     private SendMessage handleGetStageThreeMenuCallback(Long chatId, String callbackData) {
@@ -413,21 +422,21 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.GETTING_TO_KNOW_A_CAT, keyboardService.backButtonKeyboardCat());
         }
         if (callbackData.equals(Buttons.M2_SECOND_BUTTON.getCallback())) {
-            if (statusMenu.containsValue("Dog")) {
+            if (statusMenu.get(chatId).equals(AnimalType.DOG)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.REQUIRED_DOCUMENTS, keyboardService.backButtonKeyboardDog());
             }
-            if (statusMenu.containsValue("Cat")) {
+            if (statusMenu.get(chatId).equals(AnimalType.CAT)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.REQUIRED_DOCUMENTS, keyboardService.backButtonKeyboardCat());
             }
         }
         if (callbackData.equals(Buttons.M2_THIRD_BUTTON.getCallback())) {
-            if (statusMenu.containsValue("Dog")) {
+            if (statusMenu.get(chatId).equals(AnimalType.DOG)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.ANIMAL_TRANSPORTATION, keyboardService.backButtonKeyboardDog());
             }
-            if (statusMenu.containsValue("Cat")) {
+            if (statusMenu.get(chatId).equals(AnimalType.CAT)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.ANIMAL_TRANSPORTATION, keyboardService.backButtonKeyboardCat());
             }
@@ -473,26 +482,27 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.PROVEN_FELINOLOGISTS, keyboardService.backButtonKeyboardCat());
         }
         if (callbackData.equals(Buttons.M2_NINTH_BUTTON.getCallback())) {
-            if (statusMenu.containsValue("Dog")) {
+            if (statusMenu.get(chatId).equals(AnimalType.DOG)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.REASONS_FOR_REFUSAL, keyboardService.backButtonKeyboardDog());
             }
-            if (statusMenu.containsValue("Cat")) {
+            if (statusMenu.get(chatId).equals(AnimalType.CAT)) {
                 statusMap.put(chatId, BotStatus.COMMON_BUTTON);
                 return createMessage(chatId, BotStatus.REASONS_FOR_REFUSAL, keyboardService.backButtonKeyboardCat());
             }
         }
         if (callbackData.equals(Buttons.M2_ELEVENTH_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            return createMessage(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
+            statusMap.put(chatId, BotStatus.STAGE_THREE_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_THREE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
     /**
      * Метод обработки нажатия кнопок в меню информации о приюте
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
 
@@ -514,24 +524,30 @@ public class UpdateService {
             statusMap.put(chatId, BotStatus.INFO_BUTTON);
             return createMessage(chatId, BotStatus.SAFETY_PRECAUTIONS, keyboardService.backButtonKeyboard());
         }
+        if (callbackData.equals(Buttons.M1_FIFTH_BUTTON.getCallback())) {
+            statusMap.put(chatId, BotStatus.STAGE_TWO_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_TWO_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
+        }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
+
     /**
      * Метод обработки нажатия кнопок в меню выбора животного.
      * Заносит значение в мапу, о выбранном животном
-     * @param chatId
-     * @param callbackData
-     * @return выводит заданное меню с информацией о выбраном животном и соответствующие кнопки
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
+     * @return выводит заданное меню с информацией о выбранном животном и соответствующие кнопки
      */
     private SendMessage handleGetStageOneMenuCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M05_SECOND_BUTTON.getCallback())) {
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
-            statusMenu.put(chatId, "Dog");
+            statusMenu.put(chatId, AnimalType.DOG);
             return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuDogKeyboard());
         }
         if (callbackData.equals(Buttons.M05_FIRST_BUTTON.getCallback())) {
-            statusMenu.put(chatId, "Cat");
+            statusMenu.put(chatId, AnimalType.CAT);
             statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
             return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuCatKeyboard());
         }
@@ -548,22 +564,47 @@ public class UpdateService {
     private SendMessage handleGetStageOneMenuVolunteerCallback(Long chatId, String callbackData) {
 
         if (callbackData.equals(Buttons.M11_FIRST_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            Volunteer volunteer = volunteerService.callVolunteer();
-            UserCustodian custodian = custodianService.findUserCustodianByChatId(chatId);
+
+            Volunteer volunteer = volunteerService.callVolunteer(chatId);
+            if (volunteer == null) {
+                statusMap.put(chatId, BotStatus.FREE_VOLUNTEER_NOT_FOUND);
+                return createMessage(chatId, BotStatus.FREE_VOLUNTEER_NOT_FOUND, keyboardService.stageTwoMenuVolunteerKeyboard());
+            }
+
             Long volunteerChatId = volunteer.getChatId();
+            UserCustodian custodian = custodianService.findUserCustodianByChatId(chatId);
             String custodianName = custodian.getFullName();
-            String text = "<a href="+" \"tg://user?id=" + chatId + "\"" + ">" + custodianName + "</a>" + " просил позвонить ему" ;
+            String text = "<a href=" + " \"tg://user?id=" + chatId + "\"" + ">" + custodianName + "</a>" + " просил позвонить ему";
             SendMessage message = new SendMessage(volunteerChatId, text);
             message.parseMode(ParseMode.HTML);
             SendResponse response = telegramBot.execute(message);
-            return createMessage(chatId, BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER, keyboardService.stageTwoMenuVolunteerKeyboard());
+
+            statusMap.put(chatId, BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY);
+            return createMessage(chatId, BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY, keyboardService.stageTwoMenuVolunteerKeyboard());
         }
 
         if (callbackData.equals(Buttons.BACK_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
-            return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+
+            BotStatus botStatus = statusMap.get(chatId);
+
+            if (botStatus.equals(BotStatus.STAGE_NULL_MENU_VOLUNTEER)) {
+                statusMap.put(chatId, BotStatus.STAGE_NULL_MENU);
+                return createMessage(chatId, BotStatus.STAGE_NULL_MENU, keyboardService.stageNullMenuKeyboard());
+            }
+            if (botStatus.equals(BotStatus.STAGE_TWO_MENU_VOLUNTEER)) {
+                statusMap.put(chatId, BotStatus.STAGE_TWO_MENU);
+                return createMessage(chatId, BotStatus.STAGE_TWO_MENU, keyboardService.stageTwoMenuKeyboard());
+            }
+            if (botStatus.equals(BotStatus.STAGE_THREE_MENU_VOLUNTEER) && statusMenu.get(chatId).equals(AnimalType.DOG)) {
+                statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
+                return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuDogKeyboard());
+            }
+            if (botStatus.equals(BotStatus.STAGE_THREE_MENU_VOLUNTEER) && statusMenu.get(chatId).equals(AnimalType.CAT)) {
+                statusMap.put(chatId, BotStatus.STAGE_THREE_MENU);
+                return createMessage(chatId, BotStatus.STAGE_THREE_MENU, keyboardService.stageThreeMenuCatKeyboard());
+            }
         }
+
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -574,10 +615,12 @@ public class UpdateService {
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
+
     /**
      * Метод обработки нажатия кнопок в основном меню
-     * @param chatId
-     * @param callbackData
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит заданное меню и кнопки
      */
     private SendMessage handleGetStageNullMenuCallback(Long chatId, String callbackData) {
@@ -602,15 +645,17 @@ public class UpdateService {
             }
         }
         if (callbackData.equals(Buttons.M0_FOURTH_BUTTON.getCallback())) {
-            statusMap.put(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
-            return createMessage(chatId, BotStatus.STAGE_ONE_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
+            statusMap.put(chatId, BotStatus.STAGE_NULL_MENU_VOLUNTEER);
+            return createMessage(chatId, BotStatus.STAGE_NULL_MENU_VOLUNTEER, keyboardService.stageOneMenuVolunteerKeyboard());
         }
         return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
     }
+
     /**
-     * Метод  нажатия кнопки "Старт". Запоминает пользователя.
-     * @param chatId
-     * @param callbackData
+     * Метод нажатия кнопки "Старт". Запоминает пользователя.
+     *
+     * @param chatId       - Telegram ID пользователя
+     * @param callbackData - полученный ответ кнопочного меню
      * @return выводит основное меню и кнопки
      */
     private SendMessage handleGetStartButtonCallback(Long chatId, String callbackData) {
@@ -621,9 +666,11 @@ public class UpdateService {
             return createMessage(chatId, BotStatus.UNHANDLED_UPDATE);
         }
     }
+
     /**
-     * Метод  приветственного сообщения
-     * @param chatId
+     * Метод приветственного сообщения
+     *
+     * @param chatId - Telegram ID пользователя
      * @return сообщение
      */
     private SendMessage handlePrintGreetingsMessage(Long chatId) {
@@ -631,10 +678,12 @@ public class UpdateService {
         statusMap.put(chatId, BotStatus.START_BUTTON);
         return message;
     }
+
     /**
-     * Метод  приветственного сообщения, предупреждает, что пользователь не зарегестрирован
-     * Предлагает зарегестрироваться
-     * @param chatId
+     * Метод приветственного сообщения, предупреждает, что пользователь не зарегистрирован.
+     * Предлагает зарегистрироваться
+     *
+     * @param chatId - Telegram ID пользователя
      * @return сообщение
      */
     public SendMessage handleUnregisteredUserMessage(Long chatId) {
@@ -667,8 +716,8 @@ public class UpdateService {
         statusMap.put(chatId, botStatus);
     }
 
-    public void editStatusMenu(Long chatId, String str) {
-        statusMenu.put(chatId, str);
+    public void editStatusMenu(Long chatId, AnimalType type) {
+        statusMenu.put(chatId, type);
     }
 
     public void editReportMap(Long chatId, Report report) {

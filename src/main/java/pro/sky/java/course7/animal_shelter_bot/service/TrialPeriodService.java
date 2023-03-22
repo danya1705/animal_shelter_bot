@@ -3,7 +3,6 @@ package pro.sky.java.course7.animal_shelter_bot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import pro.sky.java.course7.animal_shelter_bot.repository.TrialPeriodRepository;
@@ -50,6 +49,12 @@ public class TrialPeriodService {
         return trialPeriodRepository.findTrialPeriodByUserId(id) != null;
     }
 
+    public Long getVolunteerIdByUserChatId(Long chatId) {
+        Long id = custodianService.findUserCustodianByChatId(chatId).getId();
+        return trialPeriodRepository.findByUserId(id)
+                .map(TrialPeriod::getVolunteerId)
+                .orElse(null);
+    }
 
     public List<TrialPeriod> findAllByEndDate(LocalDate now) {
         return trialPeriodRepository.findAllByEndDate(now);

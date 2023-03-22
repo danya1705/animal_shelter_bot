@@ -7,6 +7,7 @@ import pro.sky.java.course7.animal_shelter_bot.model.TrialPeriod;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface TrialPeriodRepository extends JpaRepository<TrialPeriod, Long> {
@@ -28,4 +29,6 @@ public interface TrialPeriodRepository extends JpaRepository<TrialPeriod, Long> 
     WHERE t.id = ?1
     """, nativeQuery = true)
     Long chatIdByTrialPeriod(Long id);
+
+    Optional<TrialPeriod> findByUserId(Long userId);
 }

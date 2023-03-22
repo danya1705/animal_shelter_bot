@@ -1,6 +1,7 @@
 package pro.sky.java.course7.animal_shelter_bot.service;
 
 import com.pengrad.telegrambot.BotUtils;
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -8,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pro.sky.java.course7.animal_shelter_bot.model.BotStatus;
-import pro.sky.java.course7.animal_shelter_bot.model.Report;
-import pro.sky.java.course7.animal_shelter_bot.model.UserCustodian;
+import pro.sky.java.course7.animal_shelter_bot.model.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,11 +29,19 @@ class UpdateServiceTest {
     @Mock
     private ReportService reportService;
     @Mock
+    private VolunteerService volunteerService;
+    @Mock
+    private TrialPeriodService trialPeriodService;
+    @Mock
     private KeyboardService keyboardService;
+    @Mock
+    private TelegramBot telegramBot;
     @InjectMocks
     private UpdateService updateService;
     @Captor
     ArgumentCaptor<UserCustodian> userCaptor;
+    @Captor
+    ArgumentCaptor<SendMessage> messageCaptor;
 
     @Test
     void shouldSaveNewUserInDatabase() throws URISyntaxException, IOException {
@@ -96,11 +103,23 @@ class UpdateServiceTest {
     @Test
     void handleGetStageNullMenuCallbackTest() throws URISyntaxException, IOException {
 
+        Long id = 123L;
+        UserCustodian custodian = new UserCustodian();
+        custodian.setId(id);
+
+        when(custodianService.findUserCustodianByChatId(any(Long.class))).thenReturn(custodian);
+        when(trialPeriodService.isPeriodByUserChatIdExists(any(Long.class))).thenReturn(true);
+
         testCallbackHandler("M0B1Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_TWO_MENU);
         testCallbackHandler("M0B2Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_ONE_MENU);
         testCallbackHandler("M0B3Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_SEND_REPORT_MENU_NULL);
-        testCallbackHandler("M0B4Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_ONE_MENU_VOLUNTEER);
+        testCallbackHandler("M0B4Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_NULL_MENU_VOLUNTEER);
         testCallbackHandler("WrongCallback", BotStatus.STAGE_NULL_MENU, BotStatus.UNHANDLED_UPDATE);
+
+        when(trialPeriodService.isPeriodByUserChatIdExists(any(Long.class))).thenReturn(false);
+
+        testCallbackHandler("M0B3Callback", BotStatus.STAGE_NULL_MENU, BotStatus.STAGE_SEND_REPORT_MENU_NO_TRIAL_PERIOD);
+
     }
 
     @Test
@@ -119,6 +138,7 @@ class UpdateServiceTest {
         testCallbackHandler("M1B1Callback", BotStatus.STAGE_TWO_MENU, BotStatus.INFORMATION_ABOUT_THE_SHELTER);
         testCallbackHandler("M1B2Callback", BotStatus.STAGE_TWO_MENU, BotStatus.ADDRESS_OF_THE_SHELTER);
         testCallbackHandler("M1B3Callback", BotStatus.STAGE_TWO_MENU, BotStatus.SAFETY_PRECAUTIONS);
+        testCallbackHandler("M1B5ButtonCallback", BotStatus.STAGE_TWO_MENU, BotStatus.STAGE_TWO_MENU_VOLUNTEER);
         testCallbackHandler("WrongCallback", BotStatus.STAGE_TWO_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -128,10 +148,10 @@ class UpdateServiceTest {
         testCallbackHandler("B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.STAGE_ONE_MENU);
         testCallbackHandler("M2B1CallbackDog", BotStatus.STAGE_THREE_MENU, BotStatus.GETTING_TO_KNOW_A_DOG);
         testCallbackHandler("M2B1CallbackCat", BotStatus.STAGE_THREE_MENU, BotStatus.GETTING_TO_KNOW_A_CAT);
-        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, "Dog");
-        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, "Cat");
-        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, "Dog");
-        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, "Cat");
+        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, AnimalType.DOG);
+        testCallbackHandler("M2B1Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REQUIRED_DOCUMENTS, AnimalType.CAT);
+        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, AnimalType.DOG);
+        testCallbackHandler("M2B13Callback", BotStatus.STAGE_THREE_MENU, BotStatus.ANIMAL_TRANSPORTATION, AnimalType.CAT);
         testCallbackHandler("M2B14Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_A_PUPPY);
         testCallbackHandler("M2B15Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_A_KITTEN);
         testCallbackHandler("M2B16Callback", BotStatus.STAGE_THREE_MENU, BotStatus.HOME_IMPROVEMENT_FOR_AN_ADULT_DOG);
@@ -142,8 +162,8 @@ class UpdateServiceTest {
         testCallbackHandler("M2B21Callback", BotStatus.STAGE_THREE_MENU, BotStatus.FELINOLOGIST_ADVICE);
         testCallbackHandler("M2B22Callback", BotStatus.STAGE_THREE_MENU, BotStatus.PROVEN_DOG_HANDLERS);
         testCallbackHandler("M2B23Callback", BotStatus.STAGE_THREE_MENU, BotStatus.PROVEN_FELINOLOGISTS);
-        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, "Dog");
-        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, "Cat");
+        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, AnimalType.DOG);
+        testCallbackHandler("M2B24Callback", BotStatus.STAGE_THREE_MENU, BotStatus.REASONS_FOR_REFUSAL, AnimalType.CAT);
         testCallbackHandler("WrongCallback", BotStatus.STAGE_THREE_MENU, BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -157,18 +177,18 @@ class UpdateServiceTest {
     void handleBackTheCatInfoTest() throws URISyntaxException, IOException {
 
         testCallbackHandler("B1CallbackCat", BotStatus.CAT_BUTTON, BotStatus.STAGE_THREE_MENU);
-        testCallbackHandler("B1CallbackCat", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, "Cat");
+        testCallbackHandler("B1CallbackCat", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, AnimalType.CAT);
         testCallbackHandler("WrongCallback", BotStatus.CAT_BUTTON, BotStatus.UNHANDLED_UPDATE);
-        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, "Cat");
+        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, AnimalType.CAT);
     }
 
     @Test
     void handleBackTheDogInfoTest() throws URISyntaxException, IOException {
 
         testCallbackHandler("B1CallbackDog", BotStatus.DOG_BUTTON, BotStatus.STAGE_THREE_MENU);
-        testCallbackHandler("B1CallbackDog", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, "Dog");
+        testCallbackHandler("B1CallbackDog", BotStatus.COMMON_BUTTON, BotStatus.STAGE_THREE_MENU, AnimalType.DOG);
         testCallbackHandler("WrongCallback", BotStatus.DOG_BUTTON, BotStatus.UNHANDLED_UPDATE);
-        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, "Dog");
+        testCallbackHandler("WrongCallback", BotStatus.COMMON_BUTTON, BotStatus.UNHANDLED_UPDATE, AnimalType.DOG);
     }
 
     @Test
@@ -317,34 +337,113 @@ class UpdateServiceTest {
     }
 
     @Test
-    void handleGetStageOneMenuVolunteerCallbackTest() throws URISyntaxException, IOException {
+    void handleGetStageOneMenuVolunteerCallbackPositiveTest() throws URISyntaxException, IOException {
+
+        Long volunteerChatId = 123L;
+        Long custodianChatId = 123L;
+        String custodianName = "Ivan Ivanov";
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setChatId(volunteerChatId);
+
+        UserCustodian custodian = new UserCustodian();
+        custodian.setUserChatId(custodianChatId);
+        custodian.setFullName(custodianName);
+
+        when(volunteerService.callVolunteer(any(Long.class))).thenReturn(volunteer);
+        when(custodianService.findUserCustodianByChatId(any(Long.class))).thenReturn(custodian);
+
+        String text = "<a href=" + " \"tg://user?id=" + custodianChatId + "\"" + ">" + custodianName + "</a>" + " просил позвонить ему";
 
         testCallbackHandler("M11B1Callback",
-                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
-                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+                BotStatus.STAGE_NULL_MENU_VOLUNTEER,
+                BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY);
 
-        testCallbackHandler("M11B2Callback",
-                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
-                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER);
+        verify(telegramBot).execute(messageCaptor.capture());
+        SendMessage message = messageCaptor.getValue();
+
+        assertThat(message.getParameters().get("chat_id")).isEqualTo(volunteerChatId);
+        assertThat(message.getParameters().get("text")).isEqualTo(text);
+        assertThat(message.getParameters().get("parse_mode"))
+                .isEqualTo(ParseMode.HTML.name());
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_TWO_MENU_VOLUNTEER,
+                BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY);
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY);
 
         testCallbackHandler("B1Callback",
-                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.STAGE_NULL_MENU_VOLUNTEER,
                 BotStatus.STAGE_NULL_MENU);
 
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_TWO_MENU_VOLUNTEER,
+                BotStatus.STAGE_TWO_MENU);
+
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.STAGE_THREE_MENU, AnimalType.DOG);
+
+        testCallbackHandler("B1Callback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.STAGE_THREE_MENU, AnimalType.CAT);
+
         testCallbackHandler("WrongCallback",
-                BotStatus.STAGE_ONE_MENU_VOLUNTEER,
+                BotStatus.STAGE_NULL_MENU_VOLUNTEER,
                 BotStatus.UNHANDLED_UPDATE);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_TWO_MENU_VOLUNTEER,
+                BotStatus.UNHANDLED_UPDATE);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.UNHANDLED_UPDATE, AnimalType.DOG);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.UNHANDLED_UPDATE, AnimalType.CAT);
+
+    }
+
+    @Test
+    void handleGetStageOneMenuVolunteerCallbackNegativeTest() throws URISyntaxException, IOException {
+
+        when(volunteerService.callVolunteer(any(Long.class))).thenReturn(null);
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_NULL_MENU_VOLUNTEER,
+                BotStatus.FREE_VOLUNTEER_NOT_FOUND);
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_TWO_MENU_VOLUNTEER,
+                BotStatus.FREE_VOLUNTEER_NOT_FOUND);
+
+        testCallbackHandler("M11B1Callback",
+                BotStatus.STAGE_THREE_MENU_VOLUNTEER,
+                BotStatus.FREE_VOLUNTEER_NOT_FOUND);
     }
 
     @Test
     void handleGetStageTwoMenuVolunteerCallbackTest() throws URISyntaxException, IOException {
 
         testCallbackHandler("B1Callback",
-                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER,
+                BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY,
+                BotStatus.STAGE_NULL_MENU);
+
+        testCallbackHandler("B1Callback",
+                BotStatus.FREE_VOLUNTEER_NOT_FOUND,
                 BotStatus.STAGE_NULL_MENU);
 
         testCallbackHandler("WrongCallback",
-                BotStatus.STAGE_SEND_REPORT_MENU_VOLUNTEER,
+                BotStatus.VOLUNTEER_CALLED_SUCCESSFULLY,
+                BotStatus.UNHANDLED_UPDATE);
+
+        testCallbackHandler("WrongCallback",
+                BotStatus.FREE_VOLUNTEER_NOT_FOUND,
                 BotStatus.UNHANDLED_UPDATE);
     }
 
@@ -378,7 +477,7 @@ class UpdateServiceTest {
     private void testCallbackHandler(String callbackText,
                                      BotStatus botStatusIn,
                                      BotStatus botStatusOut,
-                                     String animal) throws URISyntaxException, IOException {
+                                     AnimalType animal) throws URISyntaxException, IOException {
 
         String json = Files.readString(
                 Paths.get(UpdateServiceTest.class.getResource("callback_update.json").toURI()));
