@@ -85,7 +85,13 @@ public class ReportController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Report with such ID was not found in database"
+                            description = "Report with such ID was not found in database",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Probably photo was deleted from Telegram history",
+                            content = @Content
                     )
             }
     )
@@ -95,10 +101,14 @@ public class ReportController {
         Optional<Report> report = reportService.getReportById(id);
         if (report.isPresent()) {
             Photo photo = reportService.getPhotoById(report.get().getPhoto());
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType(photo.getMediaType()));
-            headers.setContentLength(photo.getFileSize());
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(photo.getData());
+            if (photo != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.parseMediaType(photo.getMediaType()));
+                headers.setContentLength(photo.getFileSize());
+                return ResponseEntity.status(HttpStatus.OK).headers(headers).body(photo.getData());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
         } else {
             return ResponseEntity.notFound().build();
         }
