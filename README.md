@@ -13,3 +13,15 @@
 ## Использованные технологии
 
 Java, Spring boot, Telegram API, PosgreSQL
+
+## Запуск
+
+Для начала вам потребуется получить токен для бота. Для этого в поиске Telegram вбиваем @BotFather и переходим в диалог с Отцом Ботов. 
+Пишем /newbot. Заполняем данные бота.
+
+В результате получаем API ключ вида 5555555555:AAAAaa5aAaa5_AaAAaAAAA5aA55AaAAaaaa и ссылку на бота. 
+
+API ключ нужно добавить в параметры JVM в виде команды:
+```
+-Dtelegram.bot.token=5555555555:AAAAaa5aAaa5_AaAAaAAAA5aA55AaAAaaaa
+```
