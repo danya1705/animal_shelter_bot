@@ -10,9 +10,17 @@
 
 ---
 
+## Команда разработчиков:
+[Астрашеня Дмитрий](https://github.com/Modusen)
+[Барыкин Сергей](https://github.com/Barsev174)
+[Ихтияров Виктор](https://github.com/IGuruI-1981)
+[Карпов Даниил](https://github.com/danya1705)
+
+---
+
 ## Использованные технологии
 
-Java, Spring boot, Telegram API, PosgreSQL
+Java, Spring boot, Telegram API, PosgreSQL, Liquibase, Swagger
 
 ---
 
