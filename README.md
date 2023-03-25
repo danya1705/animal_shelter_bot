@@ -35,3 +35,9 @@ API ключ нужно добавить в параметры JVM в виде �
 ```
 -Dtelegram.bot.token=5555555555:AAAAaa5aAaa5_AaAAaAAAA5aA55AaAAaaaa
 ```
+
+---
+
+## Документация проекта
+
+https://github.com/danya1705/animal_shelter_bot/wiki
