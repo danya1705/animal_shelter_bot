@@ -22,3 +22,9 @@
 ## Использованные технологии
 
 Java, Spring boot, Telegram API, PosgreSQL, Liquibase, Swagger 
+
+---
+
+## Подробное описание
+
+https://github.com/danya1705/animal_shelter_bot/wiki
